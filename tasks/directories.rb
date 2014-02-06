@@ -40,16 +40,21 @@ class DirectorySet
     RbConfig::CONFIG[a]
   end
 
+  def rbconfig_dir( a )
+    Pathname.new( rbconfig a )
+  end
+
   def set_env_paths
     ENV['TOP_DIR'] = topdir.to_s
     ENV['GTEST_DIR'] = gtest.to_s
     ENV['RICE_DIR'] = dir(:rice).to_s
     ENV['RB_LIB_ARGS'] = rbconfig('LIBRUBYARG')
-    ENV['RB_INCLUDE_ARGS'] = %W{ -I#{rbconfig('rubyhdrdir')}/ruby
-                                 -I#{rbconfig('rubyarchhdrdir')}/ruby }.join(' ')
+    ENV['RB_INCLUDE_ARGS'] = [ "-I" + rbconfig_dir('rubyhdrdir').join("ruby").to_s,
+                               "-I" + rbconfig_dir('rubyarchhdrdir').join("ruby").to_s ].join(' ')
 
     # TODO:  How to get ruby libdir automatically?
-    ENV['LD_LIBRARY_PATH'] = %W( -I${rbconfig('rubylibdir')}/lib ).join(':')
+    ENV['LD_LIBRARY_PATH'] = [ rbconfig('rubylibdir') + "/lib",
+                               topdir.join("lib") ].join(':')
   end
 end
 

@@ -24,10 +24,10 @@ test_app: $(SRCS:.cpp=.o)
 	g++ $(CXXFLAGS) -c -o $@ $^
 
 test: test_app
-	LD_LIBRARY_PATH="$(G2O_DIR)/lib:$(TOP_DIR)/lib:/home/aaron/.rvm/rubies/ruby-2.0.0-p353/lib" ./test_app
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" ./test_app
 
 gdb: test_app
-	LD_LIBRARY_PATH="$(G2O_DIR)/lib:$(TOP_DIR)/lib:/home/aaron/.rvm/rubies/ruby-2.0.0-p353/lib" gdb ./test_app
+	LD_LIBRARY_PATH="$(LD_LIBRARY_PATH)" gdb ./test_app
 
 .PHONY: clean
 
