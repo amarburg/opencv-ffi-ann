@@ -1,4 +1,5 @@
 
+require "input_image"
 
 
 class ImagePairs
@@ -13,13 +14,22 @@ class ImagePairs
 
   def length; @pairs.length; end
 
+  def each
+    if block_given?
+      @pairs.each { |pair| yield pair }
+    else
+      @pairs.each
+    end
+  end
+
 end
 
 
 class ImagePair
+  attr_reader :a, :b
 
   def initialize( a, b )
-    @a = a
-    @b = b
+    @a = InputImage.new a
+    @b = InputImage.new b
   end
 end

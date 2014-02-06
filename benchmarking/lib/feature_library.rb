@@ -1,20 +1,16 @@
 
+require "sift_features"
 
-module Mosaicker
+class FeatureLibrary
 
-  class FeatureLibrary
-
-    def initialize
-      @lib = {}
-    end
-
-    def add( image, features )
-      @lib[ image ] = features
-    end
-
-    def [](a); @lib[a]; end
-
-    def keys; @lib.keys; end
+  def initialize
+    @lib = Hash.new { |h,k|
+      h[k] = SiftFeatures::extract_features( k )
+    }
   end
 
+  def [](a); @lib[a]; end
+
+  def keys; @lib.keys; end
 end
+

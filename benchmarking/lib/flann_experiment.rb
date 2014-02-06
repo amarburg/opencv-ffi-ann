@@ -1,10 +1,17 @@
 
 require "trollop"
+require "benchmark"
+
 require "members"
 require "print_now"
 
+require "brute_force_matcher"
+require "flann_matcher"
+
 
 class FlannExperiment
+
+  include FlannExperimentMembers
 
   attr_reader :verbose
   alias :verbose? :verbose
@@ -15,6 +22,26 @@ class FlannExperiment
     yield self if block_given?
   end
 
+  def run
+
+    image_pairs.each { |pair|
+
+      algorithms.each { |algo|
+
+        matches = nil
+        tms = Benchmark::measure { 
+          matches = algo.match( feature_library[pair.a], 
+                               feature_library[pair.b] )
+        }
+
+        result_db.add( pair, algo, matches, tms )
+
+      }
+
+    }
+  end
+
+
   def self.from_opts( argvs = ARGV )
 
     opts = Trollop::options do
@@ -24,7 +51,6 @@ class FlannExperiment
     FlannExperiment.new( opts ) { |exp| yield exp if block_given? }
   end
 
-  include FlannExperimentMembers
 
 
   ID = :exp
