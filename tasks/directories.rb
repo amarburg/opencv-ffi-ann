@@ -16,7 +16,7 @@ class DirectorySet
     raise "Couldn't find gemdir \"#{gemdir}\"" unless gemdir.directory?
 
     @dirs[:rice] = @dirs[:gem].join(*%w(gems rice-1.6.0 ruby lib))
-    raise "Couldn't find the RICE source files \"%s\"" % @dirs[:rice] unless @dirs[:rice]
+    raise "Couldn't find the Rice source files \"%s\"" % @dirs[:rice] unless @dirs[:rice]
 
 
     set_env_paths
