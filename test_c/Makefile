@@ -1,43 +1,26 @@
 
 
 CXXFLAGS = -I$(TOP_DIR)/ext \
-	   -I$(G2O_DIR)/build \
-	   -I$(G2O_DIR) \
-	   -I/usr/include/eigen3 \
-	   -I/usr/include/suitesparse \
 	   -I$(GTEST_DIR)/include \
-	   -I$(shell rvm gemdir)/gems/rice-1.5.3/ruby/lib/include \
-	   -I/home/aaron/.rvm/rubies/ruby-2.0.0-p353/include/ruby-2.0.0 \
-	   -I/home/aaron/.rvm/rubies/ruby-2.0.0-p353/include/ruby-2.0.0/x86_64-linux -I/home/aaron/.rvm/rubies/ruby-2.0.0-p353/lib/ruby/2.0.0/x86_64-linux -I/home/aaron/.rvm/rubies/ruby-2.0.0-p353/lib/ruby/site_ruby/2.0.0 \
-	   -I$(GRAPH_MOSAIC_DIR)/lib \
+	   -I$(RICE_DIR)/include \
+	   -I$(RB_INCLUDE_ARGS) \
 	   -Wall -ggdb
 
 LDFLAGS = 
-LIBS    =-L$(G2O_DIR)/lib -lg2o_core -lg2o_stuff -lg2o_csparse_extension \
-	 -lg2o_solver_csparse  \
-	 -lcsparse -lcxsparse -lcholmod \
-	 -L$(GTEST_DIR)/build -lgtest \
-	 -lopencv_core -lopencv_features2d \
-	 -lpthread -lm \
-	 -lstdc++ \
-	 -L/home/aaron/.rvm/rubies/ruby-2.0.0-p353/lib \
-	 -lruby \
-	 -L$(GRAPH_MOSAIC_DIR)/lib -lgraph_mosaic  \
-	 -L$(TOP_DIR)/lib -lmosaic_c
 
-SRCS = optimizer_test.cpp \
-       bow_trainer_test.cpp \
-       bow_classifier_test.cpp \
-       random_descriptors.cpp \
-       main.cpp
+LIBS    = -L$(GTEST_DIR)/build -lgtest \
+	  -lopencv_core -lopencv_features2d \
+	  -lpthread -lm \
+	  -lstdc++ \
+	  $(RB_LIB_ARGS) \
+	  -L$(TOP_DIR)/lib -lcvffi_ann_c
 
-SCRATCH = /tmp/graph_mosaic
+SRCS = main.cpp
 
 test_app: $(SRCS:.cpp=.o)
 	gcc $(LDFLAGS) $^ $(LIBS) -o $@
 
 %.o : %.cpp
-	@mkdir -p $(SCRATCH)
 	g++ $(CXXFLAGS) -c -o $@ $^
 
 test: test_app

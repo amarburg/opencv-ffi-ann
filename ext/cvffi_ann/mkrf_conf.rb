@@ -24,7 +24,7 @@ Mkrf::Generator.new( 'libcvffi_ann_c', sources, compiler: "g++" ) do |gen|
   # n.b.  Libraries should be specified after the object files.  This 'objects' syntax
   # causes mkrf to place this text after the list of objects on the linker command line
   # (though before the other libs)
-  gen.objects << %W( -L#{dirs[:gem].join(*%w(gems rice-1.6.0 ruby lib lib))} -lrice 
+  gen.objects << %W( -L#{dirs[:rice].join("lib")} -lrice 
                  -lopencv_core -lopencv_features2d
   ).join(' ')
   #               -lstdc++ 
