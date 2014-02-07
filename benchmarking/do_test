@@ -13,7 +13,9 @@ exp = FlannExperiment.from_opts { |exp|
 
   exp.add_pair( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg") )
 
-  exp.algorithms << BruteForceMatcher.new
+  exp.algorithms << (exp.reference = BruteForceMatcher.new)
+  exp.algorithms << FlannMatcher.new
+  exp.algorithms << EnhancedFlannMatcher.new
 
 }
 

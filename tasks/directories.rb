@@ -18,6 +18,9 @@ class DirectorySet
     @dirs[:rice] = @dirs[:gem].join(*%w(gems rice-1.6.0 ruby lib))
     raise "Couldn't find the Rice source files \"%s\"" % @dirs[:rice] unless @dirs[:rice]
 
+    @dirs[:cvffi_ext] = @dirs[:workspace].join('opencv-ffi','opencv-ffi-ext')
+    raise "Couldn't find opencv-ffi-ext" unless @dirs[:cvffi_ext]
+
 
     set_env_paths
   end

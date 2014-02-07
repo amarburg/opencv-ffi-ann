@@ -37,13 +37,13 @@ class EnhancedDescriptors {
     int length( void ) { return _features.size(); }
 
     // TODO:  specifying type is broken 
-    Mat *descriptors_to_mat( Symbol foo )
+    Mat descriptors_to_mat( Symbol foo )
     {
 
       int type =  CV_32F;
       int descriptor_length = first().d;
       cout << endl << descriptor_length << " " << _features.size() << endl;
-      Mat *out = new Mat( descriptor_length, _features.size(), type );
+      Mat out( descriptor_length, _features.size(), type );
 
       // TODO:  Put in more efficient implementation...
       //if( out.isContinuous() ) {
@@ -57,15 +57,16 @@ class EnhancedDescriptors {
         for( int j = 0; j < descriptor_length; j++ ) {
           switch(type) {
             case CV_32F:
-              out->at<float>(i,j) = feat.descr[j];
+              out.at<float>(i,j) = feat.descr[j];
               break;
             case CV_64F:
-              out->at<double>(i,j) = feat.descr[j];
+              out.at<double>(i,j) = feat.descr[j];
               break;
           }
         }
       }
 
+      out.addref();
       return out;
     }
 
@@ -138,6 +139,12 @@ SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
   }
 
   return vector;
+}
+
+template<>
+Object to_ruby<Mat>( Mat const &m )
+{
+  return rb_float_new( 1.0 );
 }
 
 void init_enhanced_descriptors( Object &rb_mBenchmarking ) {

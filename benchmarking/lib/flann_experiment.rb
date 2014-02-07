@@ -8,30 +8,45 @@ require "print_now"
 require "brute_force_matcher"
 require "flann_matcher"
 
+require "libcvffi_ann"
+
+include CVFFI::ANN::Benchmarking
+
 
 class FlannExperiment
 
   include FlannExperimentMembers
 
+  attr_accessor :reference
   attr_reader :verbose
   alias :verbose? :verbose
 
   def initialize( opts = {} )
     @verbose = opts[:verbose] || false
 
+    @reference = nil
+
     yield self if block_given?
   end
 
   def run
-
     image_pairs.each { |pair|
 
       algorithms.each { |algo|
 
+        features_a, features_b  = if algo.do_warp
+                                    puts_pre ID, "Warping feature locations for \"%s\"" % algo.name if verbose?
+                                    [ EnhancedDescriptors.new( feature_library[pair.a]),
+                                      EnhancedDescriptors.new( feature_library[pair.b]) ]
+                                  else
+                                    [ feature_library[pair.a],
+                                      feature_library[pair.b] ]
+                                  end
+
+
         matches = nil
         tms = Benchmark::measure { 
-          matches = algo.match( feature_library[pair.a], 
-                               feature_library[pair.b] )
+          matches = algo.match( features_a, features_b )
         }
 
         result_db.add( pair, algo, matches, tms )
