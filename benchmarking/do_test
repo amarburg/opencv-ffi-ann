@@ -16,10 +16,12 @@ exp = FlannExperiment.from_opts { |exp|
                     [3.09099e-05, -5.04486e-05,  1.00000e+00 ]]  )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
+  exp.algorithms << ManualGeometry.new
   exp.algorithms << L2SqrBruteForceMatcher.new
   exp.algorithms << CVFFIBruteForceMatcher.new
   exp.algorithms << CVFFIFlannMatcher.new
   exp.algorithms << FlannMatcher.new
+  exp.algorithms << KMeansFlannMatcher.new
 
   weight = 1000000.0;
   weight = weight.to_f / 972.0;     # 972 is the width of the test images.

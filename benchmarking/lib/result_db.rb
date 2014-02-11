@@ -109,9 +109,9 @@ class ResultDb
         puts_pre ID, "%40s %20s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
           [ result.algo.describe, result.pair.name,
             result.matches.length, result.pct_inliers, result.pct_accuracy,
-            (result.train_time ? ("% 8.2f" % (result.train_time.total*1e3)) : "--"),
-            (result.match_time ? ("% 8.2f" % (result.match_time.total*1e3)) : "--"),
-            ("% 8.2f" % (result.match_time.total*1e3))
+            (result.train_time ? ("% 8d" % (result.train_time.total*1e3)) : "--"),
+            (result.match_time ? ("% 8d" % (result.match_time.total*1e3)) : "--"),
+            ("% 8d" % (result.total_time.total*1e3))
         ]
       }
       

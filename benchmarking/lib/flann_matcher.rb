@@ -8,14 +8,18 @@ class FlannMatcher < Matcher
 
   def initialize( opts = {} )
     super opts
-    @name = ID.to_s
+    @name =  "kdtree_flann"
+  end
+
+  def flann_type
+    :KD_TREE
   end
 
   def match( query, train, opts = {} )
     print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
 
     results = nil
-    matcher = CVFFI::ANN::FlannMatcher.new
+    matcher = CVFFI::ANN::FlannMatcher.new( flann_type )
 
     @train_time = Benchmark.measure {
       matcher.train train.descriptors_to_mat( :CV_32F ) 
@@ -30,39 +34,15 @@ class FlannMatcher < Matcher
   end
 end
 
-class EnhancedFlannMatcher < FlannMatcher
-
-  ID = :enhanced_flann
-
-  def initialize( weight, opts = {} )
+class KMeansFlannMatcher < FlannMatcher
+  def initialize( opts = {} )
     super opts
-    @weight = weight
-    @name = ID.to_s
-    @description = "%s (w=%f)" % [name, @weight]
+    @name = "kmeans_flann"
   end
 
-  def match( query, train,  opts = {} )
-    hom = opts[:homography] or raise "Homography not supplied to EnhancedFlannMatcher."
-
-    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
-
-    results = nil
-    matcher = CVFFI::ANN::FlannMatcher.new
-
-    @train_time = Benchmark.measure {
-      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
-      matcher.train t
-    }
-
-    @match_time = Benchmark.measure {
-      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
-      results = matcher.match q
-    }
-
-    puts " .. have %d putative matches" % results.length
-
-    results
-  end
+  def flann_type; :KMEANS; end
 end
+
+
 
 

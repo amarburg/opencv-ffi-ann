@@ -33,7 +33,7 @@ module CVFFI
       end
     end
 
-    class FlannMatcher
+    class Matcher
       alias :match_c :match
       def match( query, train = nil )
         if train
@@ -44,7 +44,23 @@ module CVFFI
       end
     end
 
+    class FlannMatcher
+      def self.new( type = :KD_TREE )
+        case type
+        when :KD_TREE
+          KdTreeFlannMatcher.new
+        when :KMEANS
+          KMeansFlannMatcher.new
+        else 
+          raise "Hm, unknown type of Flann matcher.."
+        end
+      end
+    end
 
+
+    # I'm sure this could be done more elegantly, maybe with the 
+    # constructor taking an enum.  But I can't wrap my head around
+    # converting class constants to enums right now...
     class BruteForceMatcher
       def self.new( norm, crosscheck = false )
         case norm
