@@ -43,5 +43,17 @@ module CVFFI
         end
       end
     end
+
+
+    class BruteForceMatcher
+      def self.new( norm, crosscheck = false )
+        case norm
+        when :L2
+          L2BruteForceMatcher.new( crosscheck )
+        when :L2SQR
+          L2SqrBruteForceMatcher.new( crosscheck )
+        end
+      end
+    end
   end
 end

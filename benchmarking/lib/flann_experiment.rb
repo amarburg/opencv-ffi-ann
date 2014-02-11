@@ -6,6 +6,7 @@ require "members"
 require "print_now"
 
 require "brute_force_matcher"
+require "cvffi_brute_force_matcher"
 require "flann_matcher"
 require "cvffi_flann_matcher"
 require "match_bundle"

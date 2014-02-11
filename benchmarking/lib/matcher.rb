@@ -11,9 +11,9 @@ class Matcher
     @match_time = nil
   end
 
-  def describe; @description || @name; end
-
-  alias :describe :name
+  def describe
+    @description || @name
+  end
 
 end
 

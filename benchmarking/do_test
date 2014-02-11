@@ -16,6 +16,8 @@ exp = FlannExperiment.from_opts { |exp|
                     [3.09099e-05, -5.04486e-05,  1.00000e+00 ]]  )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
+  exp.algorithms << L2SqrBruteForceMatcher.new
+  exp.algorithms << CVFFIBruteForceMatcher.new
   exp.algorithms << CVFFIFlannMatcher.new
   exp.algorithms << FlannMatcher.new
 

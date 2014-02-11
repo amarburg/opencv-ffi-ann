@@ -3,11 +3,16 @@ require_relative "matcher"
 
 require "opencv-ffi-ext"
 
+
 class BruteForceMatcher < Matcher
 
   def initialize(opts = {})
     super opts
-    @name = "brute_force"
+    @name = ID.to_s
+  end
+
+  def matcher
+    CVFFI::ANN::BruteForceMatcher.new( :L2 )
   end
 
   ID = :brute_force
@@ -16,8 +21,8 @@ class BruteForceMatcher < Matcher
 
     results = nil
     @match_time = Benchmark.measure {
-      results = CVFFI::Matcher::brute_force_matcher( query.descriptors_to_mat( :CV_32F ), 
-                                                    train.descriptors_to_mat( :CV_32F ), opts )
+      results = matcher.match( query.descriptors_to_mat( :CV_32F ), 
+                                  train.descriptors_to_mat( :CV_32F ) )
     }
 
     puts " .. have %d putative matches" % results.length
@@ -25,4 +30,18 @@ class BruteForceMatcher < Matcher
     results
   end
 end
-                  
+
+class L2SqrBruteForceMatcher < BruteForceMatcher
+
+  ID = :l2_sqr_brute_force
+  def initialize(opts = {})
+    super opts
+    @name = ID.to_s
+  end
+
+  def matcher
+    CVFFI::ANN::BruteForceMatcher.new( :L2SQR )
+  end
+
+end
+                 
