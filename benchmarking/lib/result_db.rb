@@ -3,12 +3,14 @@ require "delegate"
 class Result
   attr_reader :pair, :algo, :matches
   attr_reader :num_inliers, :accuracy
+  attr_reader :train_time, :match_time
 
-  def initialize( pair, algo, matches, tms )
+  def initialize( pair, algo, matches, train_time, match_time )
     @pair = pair
     @algo = algo
     @matches = matches
-    @tms = tms
+    @train_time = train_time
+    @match_time = match_time
   end
 
   def calculate_residuals( h )
@@ -58,8 +60,8 @@ class ResultDb
     @results =  []
   end
 
-  def add( pair, algo, matches, tms )
-    @results.push Result.new( pair, algo, matches, tms )
+  def add( pair, algo, matches, train_time, match_time )
+    @results.push Result.new( pair, algo, matches,  train_time, match_time )
   end
 
   def image_pairs
@@ -96,7 +98,10 @@ class ResultDb
         result.calculate_inliers( pair.homography ) if pair.homography
         result.calculate_accuracy( ref )
 
-        puts_pre ID, "%20s %20s   % 4.2f  % 4.2f" % [ result.algo.name, result.pair.name, result.pct_inliers, result.pct_accuracy ]
+        puts_pre ID, "%40s %20s   % 4.2f  % 7.2f  %12s %12s" % [ result.algo.describe, result.pair.name, result.pct_inliers, result.pct_accuracy,
+         (result.train_time ? ("% 8.2f" % result.train_time.total*1e6) : "--"),
+         (result.match_time ? ("% 8.2f" % result.match_time.total*1e6) : "--")
+        ]
       }
       
 

@@ -1,6 +1,6 @@
 
 require "trollop"
-require "benchmark"
+#require "benchmark"
 
 require "members"
 require "print_now"
@@ -38,14 +38,10 @@ class FlannExperiment
         features_a = feature_library[pair.a]
         features_b = feature_library[pair.b]
 
-        matches = nil
-        tms = Benchmark::measure { 
-          matches = algo.match( features_a, features_b, homography: pair.homography )
-        }
-
+        matches = algo.match( features_a, features_b, homography: pair.homography )
         matches = Matches.new( matches, features_a, features_b )
 
-        result_db.add( pair, algo, matches, tms )
+        result_db.add( pair, algo, matches, algo.train_time, algo.match_time )
       }
 
     }

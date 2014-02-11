@@ -15,4 +15,6 @@ void Init_libcvffi_ann_c( void ) {
 
   init_descriptors( rb_mBenchmarking );
   init_enhanced_descriptors( rb_mBenchmarking );
+
+  init_flann_matcher( rb_mANN );
 }

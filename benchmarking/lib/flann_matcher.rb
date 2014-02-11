@@ -1,23 +1,26 @@
 require_relative "matcher"
 
+require 'libcvffi_ann'
+
 class FlannMatcher < Matcher
 
   ID = :flann
 
   def initialize( opts = {} )
-    super ({ name: "flann" }.merge opts)
+    super opts
+    @name = "flann"
   end
 
   def match( query, train, opts = {} )
     print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
 
-    #desc = query.descriptors_to_mat(:CV_32F).to_Matrix
-    #p desc.row_vectors.at(2)
-    #p 128.times.map { |i| query.at(2).descriptor[i] }.join(',')
-
     # Apparently FLANN only takes floats
+    
+    results = nil
+    @match_time = Benchmark.measure { 
     results = CVFFI::Matcher::flann_matcher( query.descriptors_to_mat( :CV_32F ), 
                                             train.descriptors_to_mat( :CV_32F ) )
+    }
 
     puts " .. have %d putative matches" % results.length
 
@@ -30,9 +33,10 @@ class EnhancedFlannMatcher < FlannMatcher
   ID = :enhanced_flann
 
   def initialize( weight, opts = {} )
-    super ({ name: "enhanced_flann" }.merge(opts))
-
+    super opts
     @weight = weight
+    @name = "enhanced_flann"
+    @description = "enhanced_flann (w=%f)" % @weight
   end
 
   def match( query, train,  opts = {} )
@@ -40,15 +44,46 @@ class EnhancedFlannMatcher < FlannMatcher
 
     print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
 
-    q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
-    t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
+    results = nil
+    @match_time = Benchmark.measure {
+      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
+      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
 
-    # Apparently FLANN only takes floats
-    results = CVFFI::Matcher::flann_matcher( q,t )
+      # Apparently FLANN only takes floats
+      results = CVFFI::Matcher::flann_matcher( q,t )
+    }
 
     puts " .. have %d putative matches" % results.length
 
     results
   end
 end
-                  
+
+
+class RiceFlannMatcher < FlannMatcher
+  ID = :rice_flann
+  def initialize( opts = () )
+    super opts
+    @name = "rice_flann"
+  end
+
+  def match( query, train, opts = {} )
+    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
+
+    # Apparently FLANN only takes floats
+
+    results = nil
+    matcher = CVFFI::ANN::FlannMatcher.new
+
+    @train_time = Benchmark.measure {
+      matcher.train train.descriptors_to_mat( :CV_32F ) 
+    }
+    @match_time = Benchmark.measure { 
+      results = matcher.match query.descriptors_to_mat( :CV_32F ) 
+    }
+
+    puts " .. have %d putative matches" % results.length
+
+    results
+  end
+end

@@ -21,6 +21,15 @@ using namespace Rice;
 
 using namespace cv;
 
+template<class T>
+T *ptr_from_ffi_struct( Object obj )
+{
+    Object pointer( obj.call( rb_intern("pointer") ) );
+    Pointer *ptr;
+    Data_Get_Struct( pointer.value(), struct Pointer, ptr );
+    return reinterpret_cast<T *>(ptr->memory.address);
+}
+
 template<>
 SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
 {
@@ -34,16 +43,9 @@ SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
     ;
   } else if( obj.is_instance_of( rb_eval_string("CVFFI::Features2D::SIFT::Results") ) ) {
 
-    // Sketchy...
     // seq.seq should be an CvSeq -> a (Nice)FFI::Struct wrapping a CvSeq 
-    Object pointer( (obj.instance_eval("seq.seq.pointer")) );
-    if( pointer.is_nil() ) rb_raise(rb_eTypeError, "Hm, the pointer is nil");
-
-    Pointer *ptr;
-    Data_Get_Struct( pointer.value(), struct Pointer, ptr );
-
-    CvSeq *seq = reinterpret_cast<CvSeq *>(ptr->memory.address);
-
+    CvSeq *seq = ptr_from_ffi_struct<CvSeq>( obj.instance_eval("seq.seq" ) );
+    
     CvSeqReader reader;
     cvStartReadSeq( seq, &reader );
     for( int i = 0; i < seq->total; i++ ) {
@@ -76,6 +78,8 @@ Object to_ruby<Mat>( Mat const &m )
   return ptr;
 }
 
+
+// TODO:  Could this be done more efficiently?
 template<>
 Mat from_ruby<Mat>( Object obj )
 {
@@ -93,6 +97,10 @@ Mat from_ruby<Mat>( Object obj )
         mat.at<float>(r,c) = NUM2DBL( row[c].value() );
       }
     }
+  } else if( obj.is_instance_of( rb_eval_string("CVFFI::CvMat" ) ) ) {
+    CvMat *cvmat = ptr_from_ffi_struct<CvMat>( obj );
+
+    return mat = cvarrToMat( cvmat );
 
   } else {
     rb_raise( rb_eTypeError, "Can't convert this type of object to a Mat" );
