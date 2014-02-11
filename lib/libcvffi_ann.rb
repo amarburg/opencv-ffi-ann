@@ -32,5 +32,16 @@ module CVFFI
         end
       end
     end
+
+    class FlannMatcher
+      alias :match_c :match
+      def match( query, train = nil )
+        if train
+          train_match( query, train )
+        else
+          match_c( query )
+        end
+      end
+    end
   end
 end

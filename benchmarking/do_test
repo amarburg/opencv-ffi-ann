@@ -16,11 +16,12 @@ exp = FlannExperiment.from_opts { |exp|
                     [3.09099e-05, -5.04486e-05,  1.00000e+00 ]]  )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
-  exp.algorithms << RiceFlannMatcher.new
+  exp.algorithms << CVFFIFlannMatcher.new
+  exp.algorithms << FlannMatcher.new
 
   weight = 1000000.0;
   weight = weight.to_f / 972.0;     # 972 is the width of the test images.
-
+  exp.algorithms << EnhancedCVFFIFlannMatcher.new( weight )
   exp.algorithms << EnhancedFlannMatcher.new( weight )
 
 }

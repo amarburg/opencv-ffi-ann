@@ -99,8 +99,8 @@ class ResultDb
         result.calculate_accuracy( ref )
 
         puts_pre ID, "%40s %20s   % 4.2f  % 7.2f  %12s %12s" % [ result.algo.describe, result.pair.name, result.pct_inliers, result.pct_accuracy,
-         (result.train_time ? ("% 8.2f" % result.train_time.total*1e6) : "--"),
-         (result.match_time ? ("% 8.2f" % result.match_time.total*1e6) : "--")
+         (result.train_time ? ("% 8.2f" % (result.train_time.total*1e3)) : "--"),
+         (result.match_time ? ("% 8.2f" % (result.match_time.total*1e3)) : "--")
         ]
       }
       
