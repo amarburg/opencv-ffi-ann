@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+#: ft=ruby
+
+$LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
+
+require "homography_experiment"
+
+def motueka_four( file )
+  Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/four" ).join(file).expand_path
+end
+
+exp = HomographyExperiment.from_opts { |exp|
+
+  exp.add_pair motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg") 
+}
+
+exp.dump
+exp.run
+
+

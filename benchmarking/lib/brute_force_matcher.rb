@@ -10,11 +10,11 @@ class BruteForceMatcher < Matcher
   end
 
   ID = :brute_force
-  def match( query, train )
+  def match( query, train, opts = {} )
     print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
 
     results = CVFFI::Matcher::brute_force_matcher( query.descriptors_to_mat( :CV_32F ), 
-                                                  train.descriptors_to_mat( :CV_32F ) )
+                                                  train.descriptors_to_mat( :CV_32F ), opts )
 
     puts " .. have %d putative matches" % results.length
 

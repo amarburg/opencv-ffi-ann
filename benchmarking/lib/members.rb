@@ -8,8 +8,8 @@ module FlannExperimentMembers
     @image_pairs ||= ImagePairs.new
   end
 
-  def add_pair( a, b )
-    image_pairs.add( a, b )
+  def add_pair( a, b, opts = {} )
+    image_pairs.add( a, b, opts )
   end
 
   def feature_library

@@ -18,33 +18,28 @@ using namespace cv;
 #include <rice/Array.hpp>
 using namespace Rice;
 
-#include "enhanced_descriptors.h"
+#include "descriptors.h"
 #include "to_from_ruby.h"
 
 
-class EnhancedDescriptors {
-  public:
+EnhancedDescriptors::EnhancedDescriptors( SiftFeatureVector vector, double weight )
+: Descriptors( vector ), 
+  _weight( weight )
+{ 
+  ;
+}
 
-
-    EnhancedDescriptors( SiftFeatureVector vector )
-      : _features( vector )
-    { 
-      ;
-    }
-
-    ~EnhancedDescriptors( void )
-    { ; }
-
-    int length( void ) { return _features.size(); }
+EnhancedDescriptors::~EnhancedDescriptors( void )
+{ ; }
 
     // TODO:  specifying the type (CV_32F, CV_64F) of the output 
-    Mat descriptors_to_mat( Symbol foo )
+    Mat EnhancedDescriptors::descriptors_to_mat( Symbol foo )
     {
 
       int type =  CV_32F;
       int descriptor_length = first().d;
 
-      Mat out( _features.size(),descriptor_length, type );
+      Mat out( _features.size(), descriptor_length + 2, type );
 
       // TODO:  Put in more efficient implementation...
       //if( out.isContinuous() ) {
@@ -65,24 +60,27 @@ class EnhancedDescriptors {
               break;
           }
         }
+
+        switch(type) {
+          case CV_32F:
+            out.at<float>(r,descriptor_length  ) = _weight * feat.x;
+            out.at<float>(r,descriptor_length+1) = _weight * feat.y;
+            break;
+          case CV_64F:
+            out.at<double>(r,descriptor_length  ) = _weight * feat.x;
+            out.at<double>(r,descriptor_length+1) = _weight * feat.y;
+            break;
+        }
+
       }
 
       return out;
     }
 
 
-  protected:
-
-    SiftFeature first( void ) { return *(_features.begin()); }
-
-    SiftFeatureVector _features;
-
-};
-
-
 void init_enhanced_descriptors( Object &rb_mBenchmarking ) {
-  Data_Type <EnhancedDescriptors> rc_cED = define_class_under<EnhancedDescriptors>( rb_mBenchmarking, "EnhancedDescriptors" )
-    .define_constructor( Constructor<EnhancedDescriptors,SiftFeatureVector>() )
-    .define_method( "length", &EnhancedDescriptors::length )
+  Data_Type <EnhancedDescriptors> rc_cED = define_class_under<EnhancedDescriptors, Descriptors>( rb_mBenchmarking, "EnhancedDescriptors" )
+    .define_constructor( Constructor<EnhancedDescriptors,SiftFeatureVector,double>() )
+    .define_method( "length", &Descriptors::length )
     .define_method( "descriptors_to_mat", &EnhancedDescriptors::descriptors_to_mat );
 }

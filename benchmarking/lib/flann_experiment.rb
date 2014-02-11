@@ -7,6 +7,7 @@ require "print_now"
 
 require "brute_force_matcher"
 require "flann_matcher"
+require "match_bundle"
 
 require "libcvffi_ann"
 
@@ -34,26 +35,23 @@ class FlannExperiment
 
       algorithms.each { |algo|
 
-        features_a, features_b  = if algo.do_warp
-                                    puts_pre ID, "Warping feature locations for \"%s\"" % algo.name if verbose?
-                                    [ EnhancedDescriptors.new( feature_library[pair.a]),
-                                      EnhancedDescriptors.new( feature_library[pair.b]) ]
-                                  else
-                                    [ feature_library[pair.a],
-                                      feature_library[pair.b] ]
-                                  end
-
+        features_a = feature_library[pair.a]
+        features_b = feature_library[pair.b]
 
         matches = nil
         tms = Benchmark::measure { 
-          matches = algo.match( features_a, features_b )
+          matches = algo.match( features_a, features_b, homography: pair.homography )
         }
 
-        result_db.add( pair, algo, matches, tms )
+        matches = Matches.new( matches, features_a, features_b )
 
+        result_db.add( pair, algo, matches, tms )
       }
 
     }
+
+
+    result_db.calculate( @reference )
   end
 
 

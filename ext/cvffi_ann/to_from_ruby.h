@@ -2,7 +2,7 @@
 
 #include <rice/Class.hpp>
 
-#include "enhanced_descriptors.h"
+#include "descriptors.h"
 
 #ifndef __TO_FROM_RUBY_H__
 #define __TO_FROM_RUBY_H__

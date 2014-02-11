@@ -4,7 +4,8 @@ require 'mkrf'
 require_relative Pathname.new(ENV['TOP_DIR']).join( "tasks", "directories" )
 dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 
-sources = %w( enhanced_descriptors.cpp
+sources = %w( descriptors.cpp 
+              enhanced_descriptors.cpp
               to_from_ruby.cpp
               cvffi_ann.cpp )
 
