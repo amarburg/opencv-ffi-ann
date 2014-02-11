@@ -32,55 +32,77 @@ EnhancedDescriptors::EnhancedDescriptors( SiftFeatureVector vector, double weigh
 EnhancedDescriptors::~EnhancedDescriptors( void )
 { ; }
 
-    // TODO:  specifying the type (CV_32F, CV_64F) of the output 
-    Mat EnhancedDescriptors::descriptors_to_mat( Symbol foo )
-    {
+// TODO:  specifying the type (CV_32F, CV_64F) of the output 
+Mat EnhancedDescriptors::descriptors_to_mat( Symbol foo )
+{
 
-      int type =  CV_32F;
-      int descriptor_length = first().d;
+  int type =  CV_32F;
+  int descriptor_length = first().d;
 
-      Mat out( _features.size(), descriptor_length + 2, type );
+  Mat out( _features.size(), descriptor_length + 2, type );
 
-      // TODO:  Put in more efficient implementation...
-      //if( out.isContinuous() ) {
-      //
-      //} else {
+  // TODO:  Put in more efficient implementation...
+  //if( out.isContinuous() ) {
+  //
+  //} else {
 
-      // Inefficient way for now
-      for( unsigned int r = 0; r < _features.size(); r++ ) {
-        SiftFeature &feat = _features[r];
+  // Inefficient way for now
+  
+  for( unsigned int r = 0; r < _features.size(); r++ ) {
+    SiftFeature &feat = _features[r];
 
-        for( int c = 0; c < descriptor_length; c++ ) {
-          switch(type) {
-            case CV_32F:
-              out.at<float>(r,c) = feat.descr[c];
-              break;
-            case CV_64F:
-              out.at<double>(r,c) = feat.descr[c];
-              break;
-          }
-        }
-
-        switch(type) {
-          case CV_32F:
-            out.at<float>(r,descriptor_length  ) = _weight * feat.x;
-            out.at<float>(r,descriptor_length+1) = _weight * feat.y;
-            break;
-          case CV_64F:
-            out.at<double>(r,descriptor_length  ) = _weight * feat.x;
-            out.at<double>(r,descriptor_length+1) = _weight * feat.y;
-            break;
-        }
-
+    for( int c = 0; c < descriptor_length; c++ ) {
+      switch(type) {
+        case CV_32F:
+          out.at<float>(r,c) = feat.descr[c];
+          break;
+        case CV_64F:
+          out.at<double>(r,c) = feat.descr[c];
+          break;
       }
-
-      return out;
     }
+
+    switch(type) {
+      case CV_32F:
+        out.at<float>(r,descriptor_length  ) = _weight * feat.x;
+        out.at<float>(r,descriptor_length+1) = _weight * feat.y;
+        break;
+      case CV_64F:
+        out.at<double>(r,descriptor_length  ) = _weight * feat.x;
+        out.at<double>(r,descriptor_length+1) = _weight * feat.y;
+        break;
+    }
+
+  }
+
+  return out;
+}
+
+Mat EnhancedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
+{
+  SiftFeatureVector warped;
+
+  for( SiftFeatureVector::iterator itr = _features.begin(); itr != _features.end(); itr++ ) {
+    SiftFeature feat( *itr );
+
+    float x = h.at<float>(0,0)*feat.x + h.at<float>(0,1)*feat.y + h.at<float>(0,2);
+    float y = h.at<float>(1,0)*feat.x + h.at<float>(1,1)*feat.y + h.at<float>(1,2);
+    float z = h.at<float>(2,0)*feat.x + h.at<float>(2,1)*feat.y + h.at<float>(2,2);
+
+    feat.x = x/z;
+    feat.y = y/z;
+
+    warped.push_back( feat );
+  }
+
+  return EnhancedDescriptors( warped, _weight ).descriptors_to_mat( type );
+}
 
 
 void init_enhanced_descriptors( Object &rb_mBenchmarking ) {
   Data_Type <EnhancedDescriptors> rc_cED = define_class_under<EnhancedDescriptors, Descriptors>( rb_mBenchmarking, "EnhancedDescriptors" )
     .define_constructor( Constructor<EnhancedDescriptors,SiftFeatureVector,double>() )
     .define_method( "length", &Descriptors::length )
-    .define_method( "descriptors_to_mat", &EnhancedDescriptors::descriptors_to_mat );
+    .define_method( "descriptors_to_mat", &EnhancedDescriptors::descriptors_to_mat )
+    .define_method( "warp_descriptors_to_mat", &EnhancedDescriptors::warp_descriptors_to_mat );
 }

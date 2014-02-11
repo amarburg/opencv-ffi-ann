@@ -24,6 +24,12 @@ module CVFFI
           ptr = descriptors_to_mat_c( type )
           CVFFI::CvMat.new ptr
         end
+
+        alias :warp_descriptors_to_mat_c :warp_descriptors_to_mat
+        def warp_descriptors_to_mat( h, type = nil  )
+          ptr = warp_descriptors_to_mat_c( h, type )
+          CVFFI::CvMat.new ptr
+        end
       end
     end
   end

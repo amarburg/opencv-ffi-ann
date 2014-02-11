@@ -14,5 +14,7 @@ SiftFeatureVector from_ruby<SiftFeatureVector>( Rice::Object obj );
 template<>
 Rice::Object to_ruby<cv::Mat>( cv::Mat const &m );
 
+template<>
+cv::Mat from_ruby<cv::Mat>(Rice::Object obj );
 
 #endif

@@ -35,6 +35,7 @@ class EnhancedDescriptors : public Descriptors {
     virtual ~EnhancedDescriptors( void );
 
     virtual Mat descriptors_to_mat( Symbol foo );
+    Mat warp_descriptors_to_mat( const Mat h, Symbol type );
 
   protected:
 
