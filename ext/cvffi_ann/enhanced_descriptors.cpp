@@ -18,8 +18,9 @@ using namespace cv;
 #include <rice/Array.hpp>
 using namespace Rice;
 
-typedef feature SiftFeature;
-typedef vector<feature> SiftFeatureVector;
+#include "enhanced_descriptors.h"
+#include "to_from_ruby.h"
+
 
 class EnhancedDescriptors {
   public:
@@ -36,14 +37,14 @@ class EnhancedDescriptors {
 
     int length( void ) { return _features.size(); }
 
-    // TODO:  specifying type is broken 
+    // TODO:  specifying the type (CV_32F, CV_64F) of the output 
     Mat descriptors_to_mat( Symbol foo )
     {
 
       int type =  CV_32F;
       int descriptor_length = first().d;
-      cout << endl << descriptor_length << " " << _features.size() << endl;
-      Mat out( descriptor_length, _features.size(), type );
+
+      Mat out( _features.size(),descriptor_length, type );
 
       // TODO:  Put in more efficient implementation...
       //if( out.isContinuous() ) {
@@ -51,22 +52,21 @@ class EnhancedDescriptors {
       //} else {
 
       // Inefficient way for now
-      for( unsigned int i = 0; i < _features.size(); i++ ) {
-        SiftFeature &feat = _features[i];
+      for( unsigned int r = 0; r < _features.size(); r++ ) {
+        SiftFeature &feat = _features[r];
 
-        for( int j = 0; j < descriptor_length; j++ ) {
+        for( int c = 0; c < descriptor_length; c++ ) {
           switch(type) {
             case CV_32F:
-              out.at<float>(i,j) = feat.descr[j];
+              out.at<float>(r,c) = feat.descr[c];
               break;
             case CV_64F:
-              out.at<double>(i,j) = feat.descr[j];
+              out.at<double>(r,c) = feat.descr[c];
               break;
           }
         }
       }
 
-      out.addref();
       return out;
     }
 
@@ -79,73 +79,6 @@ class EnhancedDescriptors {
 
 };
 
-
-// From FFI
-struct AbstractMemory {
-  char* address; // Use char* instead of void* to ensure adding to it works correctly
-  long size;
-  int flags;
-  int typeSize;
-};
-
-struct Pointer {
-  struct AbstractMemory memory;
-  VALUE rbParent;
-  char* storage; /* start of malloc area */
-  bool autorelease;
-  bool allocated;
-};
-
-template<>
-SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
-{
-  SiftFeatureVector vector;
-
-  // For flexibility, it will either be a CvSeq of SiftKeypoints or 
-  // an Array of same ...?
-  //
-  // Don't like these rb_eval_strings...
-  if( obj.is_instance_of( rb_eval_string("Array") ) ) {
-    cout << "populating from array" << endl;
-  } else if( obj.is_instance_of( rb_eval_string("CVFFI::Features2D::SIFT::Results") ) ) {
-    //cout << "populating from sequence array" << endl;
-
-    // Sketchy...
-    // seq.seq should be an CvSeq -> a (Nice)FFI::Struct wrapping a CvSeq 
-    Object pointer( (obj.instance_eval("seq.seq.pointer")) );
-    if( pointer.is_nil() ) rb_raise(rb_eTypeError, "Hm, the pointer is nil");
-
-    Pointer *ptr;
-    Data_Get_Struct( pointer.value(), struct Pointer, ptr );
-
-    CvSeq *seq = reinterpret_cast<CvSeq *>(ptr->memory.address);
-
-    cout << "Loading from CvSeq with " << seq->total << " elements" << endl;
-
-
-    CvSeqReader reader;
-
-    cvStartReadSeq( seq, &reader );
-    for( int i = 0; i < seq->total; i++ ) {
-      // Too many copies going on here ...
-      SiftFeature feat;
-      CV_READ_SEQ_ELEM( feat, reader );
-
-      vector.push_back( feat );
-    }
-
-  } else { 
-    rb_raise(rb_eTypeError, "Can't create enhanced descriptors from this type");
-  }
-
-  return vector;
-}
-
-template<>
-Object to_ruby<Mat>( Mat const &m )
-{
-  return rb_float_new( 1.0 );
-}
 
 void init_enhanced_descriptors( Object &rb_mBenchmarking ) {
   Data_Type <EnhancedDescriptors> rc_cED = define_class_under<EnhancedDescriptors>( rb_mBenchmarking, "EnhancedDescriptors" )

@@ -1,4 +1,4 @@
-require_relative "brute_force_matcher"
+require_relative "matcher"
 
 class FlannMatcher < Matcher
 
@@ -38,9 +38,14 @@ class EnhancedFlannMatcher < FlannMatcher
     #p desc.row_vectors.at(2)
     #p 128.times.map { |i| query.at(2).descriptor[i] }.join(',')
 
+    q = query.descriptors_to_mat( :CV_32F )
+    puts "q is %d x %d" % [q.rows, q.cols]
+
+    t = train.descriptors_to_mat( :CV_32F )
+    puts "t is %d x %d" % [t.rows, t.cols]
+
     # Apparently FLANN only takes floats
-    results = CVFFI::Matcher::flann_matcher( query.descriptors_to_mat( :CV_32F ), 
-                                            train.descriptors_to_mat( :CV_32F ), ratio: 1.4 )
+    results = CVFFI::Matcher::flann_matcher( q,t,ratio: 1.4 )
 
     puts " .. have %d putative matches" % results.length
 
