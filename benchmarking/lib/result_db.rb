@@ -1,4 +1,5 @@
-require "delegate"
+require 'delegate'
+require 'json'
 
 class Result
   attr_reader :pair, :algo, :matches
@@ -70,6 +71,11 @@ class Result
   def find_by_a_idx( idx )
     matches.select { |match| match.a_idx == idx }
   end
+
+  def to_h
+    { pair: pair.to_h,
+      algo: algo.to_h }
+  end
 end
 
 class ResultDb 
@@ -118,7 +124,7 @@ class ResultDb
         result.calculate_inliers( pair.true_homography ) if pair.true_homography
         result.calculate_accuracy( ref )
 
-        puts_pre ID, "%40s %20s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
+        puts_pre ID, "%40s %30s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
           [ result.algo.describe, result.pair.name,
             result.matches.length, result.pct_inliers, result.pct_accuracy,
             (result.train_time ? ("% 8d" % (result.train_time.total*1e3)) : "--"),
@@ -133,5 +139,14 @@ class ResultDb
 
     self
   end
+
+  def save( filename )
+    File.write filename, JSON.pretty_generate( to_h )
+  end
+
+  def to_h
+    { results: @results.map { |result| result.to_h } }
+  end
+
 end
 

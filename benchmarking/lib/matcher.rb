@@ -15,6 +15,9 @@ class Matcher
     @description || @name
   end
 
+  def to_h
+    {name: name}
+  end
 end
 
 

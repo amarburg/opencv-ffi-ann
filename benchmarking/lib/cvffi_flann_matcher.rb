@@ -32,6 +32,7 @@ class EnhancedCVFFIFlannMatcher < FlannMatcher
     super opts
     @weight = weight
     @name = ID.to_s
+    @prescale = opts[:prescaler] || 1.0
     @description = "%s (w=%.2e)" % [name, @weight]
   end
 
@@ -42,8 +43,8 @@ class EnhancedCVFFIFlannMatcher < FlannMatcher
 
     results = nil
     @match_time = Benchmark.measure {
-      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
-      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
+      q = EnhancedDescriptors.new(query,@weight *@prescale).warp_descriptors_to_mat( hom, :CV_32F )
+      t = EnhancedDescriptors.new(train,@weight *@prescale).descriptors_to_mat( :CV_32F )
 
       # Apparently FLANN only takes floats
       results = CVFFI::Matcher::flann_matcher( q,t )

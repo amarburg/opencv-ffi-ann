@@ -17,7 +17,10 @@ exp = FlannExperiment.from_opts { |exp|
                            [3.09099e-05, -5.04486e-05,  1.00000e+00 ]]  )
 
   perturbed_h = PerturbHomography.new( a.homography, "one",
-                                         roll_var: 0.000001,
+                                      roll_bias: 0.01,
+                                      pitch_bias: 0.00,
+                                      yaw_bias: 0.00,
+                                         roll_var: 0.00000000,
                                          pitch_var: 0.00,
                                          yaw_var: 0.00 )
   exp.image_pairs.add_pair ImagePairPerturbed.new( a, h: perturbed_h )
@@ -41,3 +44,4 @@ exp.dump
 results = exp.run
 
 
+results.save("results.json")

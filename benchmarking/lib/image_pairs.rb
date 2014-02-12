@@ -53,6 +53,10 @@ class ImagePair
   def <=>(b)
     name <=> b.name 
   end
+
+  def to_h
+    {}
+  end
 end
 
 class ImagePairPerturbed
@@ -79,5 +83,9 @@ class ImagePairPerturbed
 
   def <=>(b)
     name <=> b.name 
+  end
+
+  def to_h
+    {}
   end
 end
