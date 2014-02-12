@@ -1,31 +1,35 @@
 
-require "libcvffi_ann_c"
+require 'libcvffi_ann_c'
 
 module CVFFI
   module ANN
     module Benchmarking
-
+      # Monkey-patching additional functionality into the Rice class 
+      # "Descriptors" in the extension library.
+      #
       class Descriptors
         # Rather than bring the CVFFI API into the C++ code,
         # the C++ code returns a FFI::Pointer to a CvMat
         # which can be re-wrapped in this function as an CvMat
         # (n.b. it needs to be a FFI::Struct type, not, for example Mat)
-        alias :descriptors_to_mat_c :descriptors_to_mat
+        alias_method :descriptors_to_mat_c, :descriptors_to_mat
         def descriptors_to_mat( type = nil )
           ptr = descriptors_to_mat_c( type )
           CVFFI::CvMat.new ptr
         end
-
       end
 
+      #
+      #
+      #
       class EnhancedDescriptors
-        alias :descriptors_to_mat_c :descriptors_to_mat
+        alias_method :descriptors_to_mat_c, :descriptors_to_mat
         def descriptors_to_mat( type = nil )
           ptr = descriptors_to_mat_c( type )
           CVFFI::CvMat.new ptr
         end
 
-        alias :warp_descriptors_to_mat_c :warp_descriptors_to_mat
+        alias_method :warp_descriptors_to_mat_c, :warp_descriptors_to_mat
         def warp_descriptors_to_mat( h, type = nil  )
           ptr = warp_descriptors_to_mat_c( h, type )
           CVFFI::CvMat.new ptr
@@ -33,8 +37,11 @@ module CVFFI
       end
     end
 
+    #
+    #
+    #
     class Matcher
-      alias :match_c :match
+      alias_method :match_c, :match
       def match( query, train = nil )
         if train
           train_match( query, train )

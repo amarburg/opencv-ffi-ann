@@ -32,7 +32,7 @@ class EnhancedCVFFIFlannMatcher < FlannMatcher
     super opts
     @weight = weight
     @name = ID.to_s
-    @description = "%s (w=%f)" % [name, @weight]
+    @description = "%s (w=%.2e)" % [name, @weight]
   end
 
   def match( query, train,  opts = {} )

@@ -22,10 +22,14 @@ class Result
   end
 
   def calculate_residuals( h )
-    xp = Matrix.rows @matches.map { |pts| [pts.second.x, pts.second.y] }
-    x = Matrix.rows @matches.map { |pts| [pts.first.x, pts.first.y] }
+    if @matches.length > 0
+      xp = Matrix.rows @matches.map { |pts| [pts.second.x, pts.second.y] }
+      x = Matrix.rows @matches.map { |pts| [pts.first.x, pts.first.y] }
 
-    CVFFI::Calib3d::computeHomographyReprojError( x, xp, h ).to_a
+      CVFFI::Calib3d::computeHomographyReprojError( x, xp, h ).to_a
+    else
+      []
+    end
   end
 
   def calculate_inliers( h, threshold = 3.0 )
@@ -35,7 +39,11 @@ class Result
   end
 
   def frac_inliers
-    @num_inliers.to_f / @matches.length
+    if @matches.length > 0
+      @num_inliers.to_f / @matches.length
+    else
+      0.0
+    end
   end
 
   def pct_inliers; frac_inliers * 100.0; end
@@ -51,7 +59,11 @@ class Result
   end
 
   def frac_accuracy
-    @accuracy.to_f / @matches.length
+    if @matches.length > 0
+      @accuracy.to_f / @matches.length
+    else
+      0.0
+    end
   end
   def pct_accuracy; frac_accuracy * 100.0; end
 
@@ -103,7 +115,7 @@ class ResultDb
       ref = ref.first
 
       by_pair(pair).each { |result|
-        result.calculate_inliers( pair.homography ) if pair.homography
+        result.calculate_inliers( pair.true_homography ) if pair.true_homography
         result.calculate_accuracy( ref )
 
         puts_pre ID, "%40s %20s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
@@ -119,7 +131,7 @@ class ResultDb
 
     }
 
-
+    self
   end
 end
 

@@ -15,13 +15,12 @@ class ManualGeometry < BruteForceMatcher
   end
 
   def match( query, train, opts = {} )
-    hom = opts[:homography] or raise "Homography not supplied to EnhancedFlannMatcher."
+    hom = opts[:homography] or raise "Homography not supplied to ManualGeometry"
 
     results = nil
     @match_time = Benchmark.measure {
       results = matcher.match( query.descriptors_to_mat( :CV_32F ), 
                               train.descriptors_to_mat( :CV_32F ) )
-
 
       x = Matrix.rows results.map { |match| 
         a = query[ match.queryIdx ]
