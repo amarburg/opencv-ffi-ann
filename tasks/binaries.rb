@@ -24,4 +24,8 @@ end
 benchmark_bin_wrapper :do_test
 benchmark_bin_wrapper :do_make_homographies
 
+task :process_results do
+    ruby "benchmarking/process_results"
+end
+
 

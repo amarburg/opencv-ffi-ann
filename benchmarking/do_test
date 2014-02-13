@@ -18,17 +18,17 @@ exp = FlannExperiment.from_opts { |exp|
                               [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
 
 
-  exp.image_pairs.clone( a,
-                      h: PerturbedHomography.new( "recomposed", a.homography ) )
-
-  exp.image_pairs.clone( a,
-                      h: PerturbedHomography.new( "roll_bias=0.001", a.homography,
-                                             roll_bias: 0.001,
-                                             pitch_bias: 0.00,
-                                             yaw_bias: 0.00,
-                                             roll_var: 0.00,
-                                             pitch_var: 0.00,
-                                             yaw_var: 0.00 ) )
+#  exp.image_pairs.clone( a,
+#                      h: PerturbedHomography.new( "recomposed", a.homography ) )
+#
+#  exp.image_pairs.clone( a,
+#                      h: PerturbedHomography.new( "roll_bias=0.001", a.homography,
+#                                             roll_bias: 0.001,
+#                                             pitch_bias: 0.00,
+#                                             yaw_bias: 0.00,
+#                                             roll_var: 0.00,
+#                                             pitch_var: 0.00,
+#                                             yaw_var: 0.00 ) )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
   exp.algorithms << BruteForceRatioMatcher.new( ratio: 1.4 )
@@ -41,7 +41,7 @@ exp = FlannExperiment.from_opts { |exp|
 
   [1e2, 1e4, 1e6].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
-    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
+#    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
     exp.algorithms << ExtendedFlannMatcher.new( weight )
   }
 
@@ -50,5 +50,9 @@ exp = FlannExperiment.from_opts { |exp|
 exp.dump
 results = exp.run
 
+FileUtils.mkdir 'working' unless Dir.exist? 'working'
+filename = Pathname.new('working').join( 'results-' + Time.new.strftime("%j%H%M") + '.json' )
+results.save( filename )
 
-results.save("results.json")
+loaded_results = LoadedResults.from_file filename 
+loaded_results.print

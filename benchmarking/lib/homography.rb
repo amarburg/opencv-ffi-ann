@@ -11,6 +11,10 @@ class Homography
 
   def truth; @mat; end
   def h;     @mat; end
+
+  def to_h
+    { Homography: { name: name, h: @mat.to_a } }
+  end
 end
 
 class PerturbedHomography < Homography
@@ -19,6 +23,8 @@ class PerturbedHomography < Homography
 
   def initialize( name, ref, opts = {} )
     super ref, opts.merge({name: name})
+
+    @ref = ref
 
     @roll_var = opts[:roll_var] || 0.0
     @pitch_var = opts[:pitch_var] || 0.0
@@ -53,12 +59,16 @@ class PerturbedHomography < Homography
   def h; @perturbed; end
   
   def to_h
-    h = {}
+    h = { ref: @ref.to_a, 
+          homography: @perturbed }
+
     [ :roll_var, :pitch_var, :yaw_var, 
       :roll_bias, :pitch_bias, :yaw_bias,
       :roll_error, :pitch_error, :yaw_error ].each { |key|
         h[ key ] = instance_variable_get( "@" + key.to_s )
       }
+
+    { PerturbedHomography: h }
   end
 
 

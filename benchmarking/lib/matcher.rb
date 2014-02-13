@@ -20,7 +20,7 @@ class Matcher
   end
 
   def to_h
-    {name: name}
+    {name: name, description: description }
   end
 end
 

@@ -19,7 +19,6 @@ class KdtreeFlannMatcher < FlannMatcher
   end
 
   def match( query, train, opts = {} )
-    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
 
     results = nil
     matcher = CVFFI::ANN::FlannMatcher.new( flann_type )
@@ -30,8 +29,6 @@ class KdtreeFlannMatcher < FlannMatcher
     @match_time = Benchmark.measure { 
       results = matcher.match query.descriptors_to_mat( :CV_32F ) 
     }
-
-    puts " .. have %d putative matches" % results.length
 
     results
   end

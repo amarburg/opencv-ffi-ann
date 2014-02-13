@@ -11,6 +11,7 @@ class ManualGeometry < BruteForceMatcher
   def initialize( threshold = 9.0, opts = {} )
     super opts
     @threshold = threshold
+    set_description "%s (t=%.1f)" % [name, @threshold]
   end
 
   def match( query, train, opts = {} )

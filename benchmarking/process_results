@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
+
+require 'flann_experiment'
+
+
+opts = Trollop::options do
+  opts :verbose, "Be verbose", default: true
+end
+
+results = ARGV.map { |file| LoadedResults.from_file file }
+
+results = results.reduce( LoadedResults.new ) { |m,v| m += v }
+
+results.print
+
+

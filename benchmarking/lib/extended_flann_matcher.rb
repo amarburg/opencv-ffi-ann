@@ -10,8 +10,6 @@ class ExtendedFlannMatcher < FlannMatcher
     set_description "%s (w=%.2e)" % [name, @weight]
   end
 
-  def name; ID.to_s; end
-
   def match( query, train,  opts = {} )
     hom = opts[:homography] or raise "Homography not supplied to #{self.class.name}"
 

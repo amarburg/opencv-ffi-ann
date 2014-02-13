@@ -1,10 +1,14 @@
 require 'delegate'
 require 'json'
+require 'loaded_results'
+require 'result_common'
 
 class Result
   attr_reader :pair, :algo, :matches
   attr_reader :num_inliers, :accuracy
   attr_reader :train_time, :match_time
+
+  include ResultCommon
 
   def initialize( pair, algo, matches, train_time, match_time )
     @pair = pair
@@ -14,13 +18,7 @@ class Result
     @match_time = match_time
   end
 
-  def total_time
-    if @train_time
-      @match_time + @train_time
-    else
-      @match_time
-    end
-  end
+  def num_matches; @matches.length; end
 
   def calculate_residuals( h )
     if @matches.length > 0
@@ -39,16 +37,6 @@ class Result
     }
   end
 
-  def frac_inliers
-    if @matches.length > 0
-      @num_inliers.to_f / @matches.length
-    else
-      0.0
-    end
-  end
-
-  def pct_inliers; frac_inliers * 100.0; end
-
   def calculate_accuracy( ref )
     @accuracy = matches.count { |match| 
       ref_answer = ref.find_by_a_idx( match.a_idx )
@@ -59,22 +47,18 @@ class Result
     }
   end
 
-  def frac_accuracy
-    if @matches.length > 0
-      @accuracy.to_f / @matches.length
-    else
-      0.0
-    end
-  end
-  def pct_accuracy; frac_accuracy * 100.0; end
-
   def find_by_a_idx( idx )
     matches.select { |match| match.a_idx == idx }
   end
 
   def to_h
     { pair: pair.to_h,
-      algo: algo.to_h }
+      algo: algo.to_h,
+      num_matches: @matches.length,
+      num_inliers: @num_inliers,
+      accuracy: @accuracy,
+      match_time: @match_time.to_h,
+      train_time: (@train_time ? @train_time.to_h : nil ) }
   end
 end
 
@@ -123,14 +107,6 @@ class ResultDb
       by_pair(pair).each { |result|
         result.calculate_inliers( pair.true_homography ) if pair.true_homography
         result.calculate_accuracy( ref )
-
-        puts_pre ID, "%40s %20s %10s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
-          [ result.algo.description, result.pair.name, result.pair.hom.name,
-            result.matches.length, result.pct_inliers, result.pct_accuracy,
-            (result.train_time ? ("% 8d" % (result.train_time.total*1e3)) : "--"),
-            (result.match_time ? ("% 8d" % (result.match_time.total*1e3)) : "--"),
-            ("% 8d" % (result.total_time.total*1e3))
-        ]
       }
       
 
