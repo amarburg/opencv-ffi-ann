@@ -2,13 +2,11 @@ require "flann_matcher"
 
 class CVFFIFlannMatcher < FlannMatcher
   ID = :cvffi_flann
-  def initialize( name = ID.to_s, description = nil )
+  def initialize( opts = {} )
     super
   end
 
   def match( query, train, opts = {} )
-    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
-
     # Apparently FLANN only takes floats
     
     results = nil
@@ -17,38 +15,32 @@ class CVFFIFlannMatcher < FlannMatcher
                                             train.descriptors_to_mat( :CV_32F ) )
     }
 
-    puts " .. have %d putative matches" % results.length
-
     results
   end
 end
 
-class EnhancedCVFFIFlannMatcher < FlannMatcher
+class ExtendedCVFFIFlannMatcher < FlannMatcher
 
-  ID = :enhanced_cvfi_flann
+  ID = :extended_cvfi_flann
 
-  def initialize( weight, name = ID.to_s, description = nil )
-    description ||= "%s (w=%.2e)" % [ID.to_s, weight]
-    super  name, description
+  def initialize( weight )
+    super
 
     @weight = weight
+    set_description "%s (w=%.2e)" % [ID.to_s, weight]
   end
 
   def match( query, train,  opts = {} )
-    hom = opts[:homography] or raise "Homography not supplied to EnhancedFlannMatcher."
-
-    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
+    hom = opts[:homography] or raise "Homography not supplied to #{self.class.name}"
 
     results = nil
     @match_time = Benchmark.measure {
-      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
-      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
+      q = ExtendedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
+      t = ExtendedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
 
       # Apparently FLANN only takes floats
       results = CVFFI::Matcher::flann_matcher( q,t )
     }
-
-    puts " .. have %d putative matches" % results.length
 
     results
   end

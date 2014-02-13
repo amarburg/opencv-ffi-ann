@@ -124,8 +124,8 @@ class ResultDb
         result.calculate_inliers( pair.true_homography ) if pair.true_homography
         result.calculate_accuracy( ref )
 
-        puts_pre ID, "%40s %30s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
-          [ result.algo.describe, result.pair.name,
+        puts_pre ID, "%40s %20s %10s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
+          [ result.algo.description, result.pair.name, result.pair.hom.name,
             result.matches.length, result.pct_inliers, result.pct_accuracy,
             (result.train_time ? ("% 8d" % (result.train_time.total*1e3)) : "--"),
             (result.match_time ? ("% 8d" % (result.match_time.total*1e3)) : "--"),

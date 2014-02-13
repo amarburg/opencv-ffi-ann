@@ -28,11 +28,11 @@ class Descriptors {
 
 };
 
-class EnhancedDescriptors : public Descriptors {
+class ExtendedDescriptors : public Descriptors {
   public:
 
-    EnhancedDescriptors( SiftFeatureVector vector, double weight = 1.0 );
-    virtual ~EnhancedDescriptors( void );
+    ExtendedDescriptors( SiftFeatureVector vector, double weight = 1.0 );
+    virtual ~ExtendedDescriptors( void );
 
     virtual Mat descriptors_to_mat( Symbol foo );
     Mat warp_descriptors_to_mat( const Mat h, Symbol type );

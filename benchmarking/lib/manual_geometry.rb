@@ -8,13 +8,13 @@ class ManualGeometry < BruteForceMatcher
 
   ID = :manual_geometry
 
-  def initialize( threshold = 9.0, name = ID.to_s, description = nil )
-    super  name, description
+  def initialize( threshold = 9.0, opts = {} )
+    super opts
     @threshold = threshold
   end
 
   def match( query, train, opts = {} )
-    hom = opts[:homography] or raise "Homography not supplied to ManualGeometry"
+    hom = opts[:homography] or raise "Homography not supplied to #{self.class.name}"
 
     results = nil
     @match_time = Benchmark.measure {

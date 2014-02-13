@@ -7,7 +7,7 @@ require "opencv-ffi-ext"
 class BruteForceMatcher < Matcher
 
   ID = :brute_force
-  def initialize( name = ID.to_s, description = nil )
+  def initialize( opts = {} )
     super
   end
 
@@ -31,7 +31,7 @@ end
 class L2SqrBruteForceMatcher < BruteForceMatcher
 
   ID = :l2_sqr_brute_force
-  def initialize( name = ID.to_s, description = nil )
+  def initialize( opts = {} )
     super 
   end
 
@@ -44,37 +44,34 @@ end
 class BruteForceRatioMatcher < BruteForceMatcher
 
   ID = :brute_force_ratio
-  def initialize(ratio = 1.4, name = ID.to_s, description = nil)
-    super name, description
-    @ratio = ratio
+  def initialize( opts = {} )
+    super
+    @ratio = opts[:ratio] || 1.4
+    set_description "%s (r=%.1f)" % [name, @ratio]
   end
 
   def match_opts; { ratio: @ratio }; end
 end
 
 
- class EnhancedBruteForceMatcher < BruteForceMatcher
+ class ExtendedBruteForceMatcher < BruteForceMatcher
 
-   ID = :enhanced_brute_force
+   ID = :extended_brute_force
 
-   def initialize( weight, name = ID.to_s, description = nil )
-     super name, description
+   def initialize( weight, opts = {} )
+     super opts
      @weight = weight
     set_description "%s (w=%.2e)" % [name, @weight]
    end
 
   def match( query, train, opts = {} )
-    print_pre ID, "Matching %d features with %d features" % [query.length, train.length] 
-
-    hom = opts[:homography] or raise "Homography not supplied to EnhancedBruteForceMatcher"
+    hom = opts[:homography] or raise "Homography not supplied to #{self.class.name}"
     results = nil
     @match_time = Benchmark.measure {
-      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
-      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
+      t = ExtendedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
+      q = ExtendedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
       results = matcher.match( q, t )
     }
-
-    puts " .. have %d putative matches" % results.length
 
     results
   end

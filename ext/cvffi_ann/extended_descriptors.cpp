@@ -22,18 +22,18 @@ using namespace Rice;
 #include "to_from_ruby.h"
 
 
-EnhancedDescriptors::EnhancedDescriptors( SiftFeatureVector vector, double weight )
+ExtendedDescriptors::ExtendedDescriptors( SiftFeatureVector vector, double weight )
 : Descriptors( vector ), 
   _weight( weight )
 { 
   ;
 }
 
-EnhancedDescriptors::~EnhancedDescriptors( void )
+ExtendedDescriptors::~ExtendedDescriptors( void )
 { ; }
 
 // TODO:  specifying the type (CV_32F, CV_64F) of the output 
-Mat EnhancedDescriptors::descriptors_to_mat( Symbol foo )
+Mat ExtendedDescriptors::descriptors_to_mat( Symbol foo )
 {
 
   int type =  CV_32F;
@@ -78,7 +78,7 @@ Mat EnhancedDescriptors::descriptors_to_mat( Symbol foo )
   return out;
 }
 
-Mat EnhancedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
+Mat ExtendedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
 {
   SiftFeatureVector warped;
 
@@ -95,14 +95,14 @@ Mat EnhancedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
     warped.push_back( feat );
   }
 
-  return EnhancedDescriptors( warped, _weight ).descriptors_to_mat( type );
+  return ExtendedDescriptors( warped, _weight ).descriptors_to_mat( type );
 }
 
 
-void init_enhanced_descriptors( Object &rb_mBenchmarking ) {
-  Data_Type <EnhancedDescriptors> rc_cED = define_class_under<EnhancedDescriptors, Descriptors>( rb_mBenchmarking, "EnhancedDescriptors" )
-    .define_constructor( Constructor<EnhancedDescriptors,SiftFeatureVector,double>() )
+void init_extended_descriptors( Object &rb_mBenchmarking ) {
+  Data_Type <ExtendedDescriptors> rc_cED = define_class_under<ExtendedDescriptors, Descriptors>( rb_mBenchmarking, "ExtendedDescriptors" )
+    .define_constructor( Constructor<ExtendedDescriptors,SiftFeatureVector,double>() )
     .define_method( "length", &Descriptors::length )
-    .define_method( "descriptors_to_mat", &EnhancedDescriptors::descriptors_to_mat )
-    .define_method( "warp_descriptors_to_mat", &EnhancedDescriptors::warp_descriptors_to_mat );
+    .define_method( "descriptors_to_mat", &ExtendedDescriptors::descriptors_to_mat )
+    .define_method( "warp_descriptors_to_mat", &ExtendedDescriptors::warp_descriptors_to_mat );
 }

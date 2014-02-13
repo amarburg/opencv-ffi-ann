@@ -57,7 +57,7 @@ SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
     }
 
   } else { 
-    rb_raise(rb_eTypeError, "Can't create enhanced descriptors from this type");
+    rb_raise(rb_eTypeError, "Can't create a SiftFeatureVector descriptors from this type");
   }
 
   return vector;

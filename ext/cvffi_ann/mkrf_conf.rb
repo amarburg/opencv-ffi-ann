@@ -5,7 +5,7 @@ require_relative Pathname.new(ENV['TOP_DIR']).join( "tasks", "directories" )
 dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 
 sources = %w( descriptors.cpp 
-              enhanced_descriptors.cpp
+              extended_descriptors.cpp
               to_from_ruby.cpp
               flann.cpp
               cvffi_ann.cpp )

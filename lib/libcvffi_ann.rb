@@ -22,7 +22,7 @@ module CVFFI
       #
       #
       #
-      class EnhancedDescriptors
+      class ExtendedDescriptors
         alias_method :descriptors_to_mat_c, :descriptors_to_mat
         def descriptors_to_mat( type = nil )
           ptr = descriptors_to_mat_c( type )

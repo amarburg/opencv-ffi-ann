@@ -13,7 +13,9 @@ exp = FlannExperiment.from_opts { |exp|
   exp.feature_library.do_normalize = false
 
   a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
-                          h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], [0.0029805681479836794, 0.9957693320894268, -126.469821712322], [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
+                          h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], 
+                              [0.0029805681479836794, 0.9957693320894268, -126.469821712322], 
+                              [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
 
 
   exp.image_pairs.clone( a,
@@ -29,18 +31,18 @@ exp = FlannExperiment.from_opts { |exp|
                                              yaw_var: 0.00 ) )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
-  exp.algorithms << BruteForceRatioMatcher.new( 1.4 )
+  exp.algorithms << BruteForceRatioMatcher.new( ratio: 1.4 )
   exp.algorithms << ManualGeometry.new
 #  exp.algorithms << L2SqrBruteForceMatcher.new
 #  exp.algorithms << CVFFIBruteForceMatcher.new
 #  exp.algorithms << CVFFIFlannMatcher.new
-  exp.algorithms << FlannMatcher.new
+  exp.algorithms << KdtreeFlannMatcher.new
   exp.algorithms << KMeansFlannMatcher.new
 
   [1e2, 1e4, 1e6].each { |weight|
-    exp.algorithms << EnhancedBruteForceMatcher.new( weight )
-    exp.algorithms << EnhancedCVFFIFlannMatcher.new( weight )
-    exp.algorithms << EnhancedFlannMatcher.new( weight )
+    exp.algorithms << ExtendedBruteForceMatcher.new( weight )
+    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
+    exp.algorithms << ExtendedFlannMatcher.new( weight )
   }
 
 }

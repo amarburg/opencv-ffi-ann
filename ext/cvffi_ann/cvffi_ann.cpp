@@ -5,7 +5,7 @@ using namespace Rice;
 #include "cvffi_ann.h"
 
 void init_descriptors( Object & );
-void init_enhanced_descriptors( Object & );
+void init_extended_descriptors( Object & );
 
 extern "C"
 void Init_libcvffi_ann_c( void ) {
@@ -14,7 +14,7 @@ void Init_libcvffi_ann_c( void ) {
   Module rb_mBenchmarking = define_module_under( rb_mANN, "Benchmarking" );
 
   init_descriptors( rb_mBenchmarking );
-  init_enhanced_descriptors( rb_mBenchmarking );
+  init_extended_descriptors( rb_mBenchmarking );
 
   init_flann_matcher( rb_mANN );
 }

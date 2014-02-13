@@ -35,7 +35,7 @@ end
 
 
 class ImagePair
-  attr_reader :image_a, :image_b
+  attr_reader :image_a, :image_b, :hom
 
   def initialize( image_library, a, b, opts = {} )
     @image_a = a
@@ -45,11 +45,11 @@ class ImagePair
     hom = opts[:h]
     case hom
     when Array
-      @homography = Homography.new Matrix.rows hom 
+      @hom = Homography.new Matrix.rows hom 
     when Matrix
-      @homography = Homography.new hom
+      @hom = Homography.new hom
     when Homography
-      @homography = hom
+      @hom = hom
     else
       puts "Don't know what to do with #{hom}"
     end
@@ -59,19 +59,15 @@ class ImagePair
   def b; @lib[image_b]; end
 
   def name
-    if @homography
-      "%s--%s--%s" % [a.basename, b.basename, @homography.name]
-    else
       "%s--%s" % [a.basename, b.basename ]
-    end
   end
 
   def <=>(b)
     name <=> b.name 
   end
 
-  def homography; @homography.h; end
-  def true_homography; @homography.truth; end
+  def homography; @hom.h; end
+  def true_homography; @hom.truth; end
 
   def to_h
     {}
