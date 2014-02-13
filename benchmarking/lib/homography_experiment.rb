@@ -10,10 +10,13 @@ require "flann_matcher"
 require "match_bundle"
 
 require "opencv-ffi-ext"
+require "experiment_support/projective/decomposes_homography"
 
 class HomographyExperiment
 
   include FlannExperimentMembers
+
+  include ExperimentSupport::DecomposesHomography 
 
   attr_accessor :reference
   attr_reader :verbose
@@ -35,8 +38,8 @@ class HomographyExperiment
       matches = Matches.new( dmatches, features_a, features_b )
 
       params = CVFFI::Calib3d::FEstimatorParams.new( max_iters: 10e6,
-                                                    confidence: 0.9999,
-                                                    outlier_threshold: 3,
+                                                    confidence: 0.999999,
+                                                    outlier_threshold: 1,
                                                     do_refine:  true )
 
       h_result = CVFFI::Calib3d.estimateHomography( matches.a_mat, matches.b_mat, params )
@@ -46,6 +49,14 @@ class HomographyExperiment
 
       puts "Homography for pair %s - %s" % [pair.a.basename, pair.b.basename]
       h_result.h.print( format: :exp )
+
+      p h_result.h.to_Matrix.to_a
+
+      decomp = decompose_keep_near_nadir( h_result.h.to_Matrix )
+      decomp.each { |de|
+        euler = de.r.to_euler_angles_roll_pitch_yaw
+        puts " %6.4f %6.4f %6.4f" % [euler.roll, euler.pitch, euler.yaw ]
+      }
 
     }
   end

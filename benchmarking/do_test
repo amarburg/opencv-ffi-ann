@@ -3,29 +3,33 @@
 $LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
 
 require 'flann_experiment'
-require 'perturb_homography'
+require 'homography'
 
 def motueka_four( file )
   Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/four" ).join(file).expand_path
 end
 
 exp = FlannExperiment.from_opts { |exp|
+  exp.feature_library.do_normalize = false
 
   a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
-                      h:  [[ 1.01912e+00, -1.53479e-02, -5.10015e+01 ],  
-                           [2.72249e-03,  9.98174e-01, -1.26761e+02 ], 
-                           [3.09099e-05, -5.04486e-05,  1.00000e+00 ]]  )
+                          h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], [0.0029805681479836794, 0.9957693320894268, -126.469821712322], [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
 
-  perturbed_h = PerturbHomography.new( a.homography, "one",
-                                      roll_bias: 0.01,
-                                      pitch_bias: 0.00,
-                                      yaw_bias: 0.00,
-                                         roll_var: 0.00000000,
-                                         pitch_var: 0.00,
-                                         yaw_var: 0.00 )
-  exp.image_pairs.add_pair ImagePairPerturbed.new( a, h: perturbed_h )
+
+  exp.image_pairs.clone( a,
+                      h: PerturbedHomography.new( "recomposed", a.homography ) )
+
+  exp.image_pairs.clone( a,
+                      h: PerturbedHomography.new( "roll_bias=0.001", a.homography,
+                                             roll_bias: 0.001,
+                                             pitch_bias: 0.00,
+                                             yaw_bias: 0.00,
+                                             roll_var: 0.00,
+                                             pitch_var: 0.00,
+                                             yaw_var: 0.00 ) )
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
+  exp.algorithms << BruteForceRatioMatcher.new( 1.4 )
   exp.algorithms << ManualGeometry.new
 #  exp.algorithms << L2SqrBruteForceMatcher.new
 #  exp.algorithms << CVFFIBruteForceMatcher.new
@@ -33,10 +37,11 @@ exp = FlannExperiment.from_opts { |exp|
   exp.algorithms << FlannMatcher.new
   exp.algorithms << KMeansFlannMatcher.new
 
-  weight = 10e2
-  prescale = 1.0/ (972*972)
-  exp.algorithms << EnhancedCVFFIFlannMatcher.new( weight, prescaler: prescale  )
-  exp.algorithms << EnhancedFlannMatcher.new( weight, prescaler: prescale )
+  [1e2, 1e4, 1e6].each { |weight|
+    exp.algorithms << EnhancedBruteForceMatcher.new( weight )
+    exp.algorithms << EnhancedCVFFIFlannMatcher.new( weight )
+    exp.algorithms << EnhancedFlannMatcher.new( weight )
+  }
 
 }
 

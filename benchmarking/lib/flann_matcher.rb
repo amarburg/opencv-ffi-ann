@@ -4,11 +4,10 @@ require 'libcvffi_ann'
 
 class FlannMatcher < Matcher
 
-  ID = :flann
+  ID = :kdtree_flann
 
-  def initialize( opts = {} )
-    super opts
-    @name =  "kdtree_flann"
+  def initialize( name = ID.to_s, description = nil )
+    super 
   end
 
   def flann_type
@@ -35,11 +34,11 @@ class FlannMatcher < Matcher
 end
 
 class KMeansFlannMatcher < FlannMatcher
-  def initialize( opts = {} )
-    super opts
-    @name = "kmeans_flann"
-  end
+  ID = :kmeans_flann
 
+  def initialize( name = ID.to_s, description = nil )
+    super
+  end
   def flann_type; :KMEANS; end
 end
 

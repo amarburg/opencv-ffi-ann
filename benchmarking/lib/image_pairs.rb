@@ -1,21 +1,24 @@
 
 require "input_image"
-
+require_relative "homography"
 
 class ImagePairs
 
   def initialize
     @pairs = []
+    @library = Hash.new { |h,k|
+      h[k] = InputImage.new k
+    }
   end
 
   def add( a, b, opts = {} )
-    p = ImagePair.new( a, b, opts )
-    add_pair( p )
-  end
-
-  def add_pair( pair )
+    pair= ImagePair.new( @library, a, b, opts )
     @pairs << pair
     pair
+  end
+
+  def clone( copy, opts = {} )
+    add( copy.image_a, copy.image_b, opts )
   end
 
   def length; @pairs.length; end
@@ -32,60 +35,46 @@ end
 
 
 class ImagePair
-  attr_reader :a, :b, :homography
+  attr_reader :image_a, :image_b
 
-  def initialize( a, b, opts = {} )
-    @a = InputImage.new a
-    @b = InputImage.new b
+  def initialize( image_library, a, b, opts = {} )
+    @image_a = a
+    @image_b = b
+    @lib = image_library
 
     hom = opts[:h]
-    if hom
-      @homography = Matrix.rows hom 
+    case hom
+    when Array
+      @homography = Homography.new Matrix.rows hom 
+    when Matrix
+      @homography = Homography.new hom
+    when Homography
+      @homography = hom
+    else
+      puts "Don't know what to do with #{hom}"
     end
   end
 
-  alias :true_homography :homography
+  def a; @lib[image_a]; end
+  def b; @lib[image_b]; end
 
   def name
-    "%s--%s" % [a.basename, b.basename]
+    if @homography
+      "%s--%s--%s" % [a.basename, b.basename, @homography.name]
+    else
+      "%s--%s" % [a.basename, b.basename ]
+    end
   end
 
   def <=>(b)
     name <=> b.name 
   end
 
-  def to_h
-    {}
-  end
-end
-
-class ImagePairPerturbed
-  attr_reader :a, :b
-
-  def initialize( pair, opts = {} )
-    @a = pair.a
-    @b = pair.b
-
-    @hom = opts[:h]
-  end
-
-  def homography
-    @hom.homography
-  end
-
-  def true_homography
-    @hom.true_homography
-  end
-
-  def name
-    "%s--%s--%s" % [a.basename, b.basename, @hom.name]
-  end
-
-  def <=>(b)
-    name <=> b.name 
-  end
+  def homography; @homography.h; end
+  def true_homography; @homography.truth; end
 
   def to_h
     {}
   end
 end
+

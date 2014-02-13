@@ -6,10 +6,11 @@ class EnhancedFlannMatcher < FlannMatcher
   def initialize( weight, opts = {} )
     super opts
     @weight = weight
-    @prescaler = opts[:prescaler] || 1.0
-    @name = ID.to_s
-    @description = "%s (w=%.2e)" % [name, @weight]
+
+    set_description "%s (w=%.2e)" % [name, @weight]
   end
+
+  def name; ID.to_s; end
 
   def match( query, train,  opts = {} )
     hom = opts[:homography] or raise "Homography not supplied to EnhancedFlannMatcher."
@@ -20,12 +21,12 @@ class EnhancedFlannMatcher < FlannMatcher
     matcher = CVFFI::ANN::FlannMatcher.new
 
     @train_time = Benchmark.measure {
-      t = EnhancedDescriptors.new(train,@weight * @prescaler).descriptors_to_mat( :CV_32F )
+      t = EnhancedDescriptors.new(train,@weight).descriptors_to_mat( :CV_32F )
       matcher.train t
     }
 
     @match_time = Benchmark.measure {
-      q = EnhancedDescriptors.new(query,@weight * @prescaler).warp_descriptors_to_mat( hom, :CV_32F )
+      q = EnhancedDescriptors.new(query,@weight).warp_descriptors_to_mat( hom, :CV_32F )
       results = matcher.match q
     }
 

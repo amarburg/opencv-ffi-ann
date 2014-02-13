@@ -8,10 +8,9 @@ class ManualGeometry < BruteForceMatcher
 
   ID = :manual_geometry
 
-  def initialize(opts = {})
-    super opts
-    @threshold = opts[:threshold] || 9.0
-    @name = ID.to_s
+  def initialize( threshold = 9.0, name = ID.to_s, description = nil )
+    super  name, description
+    @threshold = threshold
   end
 
   def match( query, train, opts = {} )

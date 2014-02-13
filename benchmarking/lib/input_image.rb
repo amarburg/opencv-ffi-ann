@@ -28,6 +28,6 @@ class InputImage
   end
 
   def image_size
-    @size ||= as_mat.image_size
+    @size ||= as_CvMat.image_size
   end
 end
