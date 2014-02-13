@@ -17,9 +17,14 @@ module Benchmark
 end
 
 class LoadedResults
+  attr_reader :results
 
-  def initialize( results )
+  def initialize( results = [] )
     @results = results
+  end
+
+  def +(b)
+    LoadedResults.new (@results + b.results)
   end
 
   def print
