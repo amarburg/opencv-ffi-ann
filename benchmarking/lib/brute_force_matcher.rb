@@ -25,7 +25,6 @@ class BruteForceMatcher < Matcher
     results
   end
 
-  def match_opts; {}; end
 end
 
 class L2SqrBruteForceMatcher < BruteForceMatcher
@@ -44,13 +43,15 @@ end
 class BruteForceRatioMatcher < BruteForceMatcher
 
   ID = :brute_force_ratio
-  def initialize( opts = {} )
-    super
-    @ratio = opts[:ratio] || 1.4
+  def initialize( ratio, opts = {} )
+    super opts
+    @ratio = ratio
     set_description "%s (r=%.1f)" % [name, @ratio]
   end
 
-  def match_opts; { ratio: @ratio }; end
+  def matcher
+    CVFFI::ANN::BruteForceRatioMatcher.new( @ratio )
+  end
 
   def to_h
     h = super

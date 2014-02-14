@@ -33,7 +33,7 @@ class HomographyExperiment
 
       features_a = feature_library[pair.a]
       features_b = feature_library[pair.b]
-      dmatches = BruteForceMatcher.new.match( features_a, features_b, ratio: 1.4 )
+      dmatches = BruteForceRatioMatcher.new(1.4).match( features_a, features_b)
 
       matches = Matches.new( dmatches, features_a, features_b )
 

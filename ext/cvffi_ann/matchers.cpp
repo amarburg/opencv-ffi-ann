@@ -74,6 +74,51 @@ public:
   {  _matcher = new BFMatcher( NORM_L2, crosscheck ); }
 };
 
+vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, float ratio )
+{
+  vector<vector<DMatch> > match_pairs;
+  vector<DMatch> keep;
+  matcher->knnMatch( query, match_pairs, 2 );
+
+  for( vector<vector<DMatch> >::iterator itr = match_pairs.begin(); itr != match_pairs.end(); itr++ ) {
+    vector<DMatch> &pair( *itr );
+    bool do_keep = pair[1].distance > (ratio * pair[0].distance);
+//printf("%f %f %s\n", pair[1].distance, pair[0].distance, (do_keep ? "yes" : "no") );
+    if( do_keep ) keep.push_back(pair[0]);
+  }
+  return keep;
+}
+
+vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, const Mat train, float ratio )
+{
+  vector<vector<DMatch> > match_pairs;
+  vector<DMatch> keep;
+  matcher->knnMatch( query, train, match_pairs, 2 );
+
+  for( vector<vector<DMatch> >::iterator itr = match_pairs.begin(); itr != match_pairs.end(); itr++ ) {
+    vector<DMatch> &pair( *itr );
+    bool do_keep = pair[1].distance > (ratio * pair[0].distance);
+    //printf("%f %f %s\n", pair[1].distance, pair[0].distance, (do_keep ? "yes" : "no") );
+    if( do_keep ) keep.push_back(pair[0]);
+  }
+  return keep;
+}
+
+
+
+class L2BruteForceRatioMatcher : public L2BruteForceMatcher {
+public:
+  L2BruteForceRatioMatcher( float ratio, bool crosscheck = false ) : L2BruteForceMatcher()
+  { _ratio = ratio; }
+
+  vector<DMatch> match( const Mat query, const Mat train )
+  { return ratio_match( _matcher, query, train, _ratio ); }
+
+protected:
+  float _ratio;
+};
+
+
 class L2SqrBruteForceMatcher : public Matcher {
 public:
   L2SqrBruteForceMatcher( bool crosscheck = false ) : Matcher()
@@ -86,12 +131,41 @@ public:
   {_matcher = new FlannBasedMatcher( makePtr<flann::KDTreeIndexParams>() ); }
 };
 
+class KdTreeFlannRatioMatcher : public KdTreeFlannMatcher {
+  public:
+    KdTreeFlannRatioMatcher( float ratio ) : KdTreeFlannMatcher()
+  { _ratio = ratio; }
+
+    vector<DMatch> match( const Mat query, const Mat train )
+    { return ratio_match( _matcher, query, train, _ratio ); }
+
+    vector<DMatch> match( const Mat query )
+    { return ratio_match( _matcher, query, _ratio ); }
+
+  protected:
+  float _ratio;
+};
+
 class KMeansFlannMatcher : public Matcher {
 public:
   KMeansFlannMatcher() : Matcher()
   {_matcher = new FlannBasedMatcher( makePtr<flann::KMeansIndexParams>() ); }
 };
 
+class KMeansFlannRatioMatcher : public KMeansFlannMatcher {
+  public:
+    KMeansFlannRatioMatcher( float ratio ) : KMeansFlannMatcher()
+  { _ratio = ratio; }
+
+    vector<DMatch> match( const Mat query, const Mat train )
+    { return ratio_match( _matcher, query, train, _ratio ); }
+
+    vector<DMatch> match( const Mat query )
+    { return ratio_match( _matcher, query, _ratio ); }
+
+  protected:
+  float _ratio;
+};
 //================================================
 
 
@@ -144,8 +218,23 @@ void init_flann_matcher( Object &rb_module ) {
   define_bf_matcher<L2BruteForceMatcher>( rb_module, "L2BruteForceMatcher" );
   define_bf_matcher<L2SqrBruteForceMatcher>( rb_module, "L2SqrBruteForceMatcher" );
 
+  define_class_under<L2BruteForceRatioMatcher,L2BruteForceMatcher>( rb_module, "L2BruteForceRatioMatcher" )
+    .define_constructor( Constructor<L2BruteForceRatioMatcher,float,bool>(), (Arg("ratio"), Arg("crosscheck") = false) )
+    .define_method( "match", train_match(&Matcher::match) );
+
   define_train_matcher<KdTreeFlannMatcher>( rb_module, "KdTreeFlannMatcher" );
+  define_class_under<KdTreeFlannRatioMatcher,KdTreeFlannMatcher>( rb_module, "KdTreeFlannRatioMatcher")
+    .define_constructor( Constructor<KdTreeFlannRatioMatcher,float>() )
+    .define_method( "train", &Matcher::train )
+    .define_method( "match", match_using_existing(&Matcher::match) )
+    .define_method( "train_match", train_match(&Matcher::match) );
+
   define_train_matcher<KMeansFlannMatcher>( rb_module, "KMeansFlannMatcher" );
+  define_class_under<KMeansFlannRatioMatcher,KMeansFlannMatcher>( rb_module, "KMeansFlannRatioMatcher")
+    .define_constructor( Constructor<KMeansFlannRatioMatcher,float>() )
+    .define_method( "train", &Matcher::train )
+    .define_method( "match", match_using_existing(&Matcher::match) )
+    .define_method( "train_match", train_match(&Matcher::match) );
 
   Data_Type <DMatch> rc_cDMatch = define_class_under<cv::DMatch>( rb_module, "DMatch" )
     .define_constructor( Constructor<cv::DMatch,int,int,float>() )

@@ -50,8 +50,6 @@ class ImagePair
       @hom = Homography.new hom
     when Homography
       @hom = hom
-    else
-      puts "Don't know what to do with #{hom}"
     end
   end
 

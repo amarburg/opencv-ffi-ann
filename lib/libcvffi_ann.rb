@@ -78,5 +78,11 @@ module CVFFI
         end
       end
     end
+
+    class BruteForceRatioMatcher
+      def self.new( ratio, crosscheck = true )
+        L2BruteForceRatioMatcher.new( ratio, crosscheck )
+      end
+    end
   end
 end

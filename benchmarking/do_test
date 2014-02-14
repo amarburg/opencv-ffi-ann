@@ -5,6 +5,12 @@ $LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
 require 'flann_experiment'
 require 'homography'
 
+def motueka_one( file )
+  Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/one" ).join(file).expand_path
+end
+def motueka_three( file )
+  Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/three" ).join(file).expand_path
+end
 def motueka_four( file )
   Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/four" ).join(file).expand_path
 end
@@ -12,17 +18,28 @@ end
 exp = FlannExperiment.from_opts { |exp|
   exp.feature_library.do_normalize = false
 
-  a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
-                          h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], 
-                              [0.0029805681479836794, 0.9957693320894268, -126.469821712322], 
-                              [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
+  a = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_four("IMG_7621.jpg"),
+    h: [[0.9755954191597045, 0.02225245262880853, 76.41152377955814], [-0.018338568357138502, 0.9884493576777186, 195.042692671482], [-2.4732302344798835e-05, 2.4687883810771773e-05, 1.0]]
+
+
+  b = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg"),
+    h:  [[0.9018801725446839, 0.017438893117039132, -41.891015182272355], [-0.010321685432912255, 0.8953909005623429, 243.41450398071066], [-9.336278041235812e-06, 2.1332778189773873e-05, 1.0]]
+
+  c = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg"),
+    h: [[0.3584493783910275, -0.8285990120363144, 357.1625513564096], [0.4117464276583445, -0.963854999905202, 416.31902633065744], [0.0009958336678321323, -0.00231735800185345, 0.9999999999999999]]
+
+  #a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
+  #                        h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], 
+  #                            [0.0029805681479836794, 0.9957693320894268, -126.469821712322], 
+  #                            [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
 
 
 #  exp.image_pairs.clone( a,
 #                      h: PerturbedHomography.new( "recomposed", a.homography ) )
 
 #[-10, -6, -4, -2, 2, 4, 6, 10].each { |b|
-[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
+#[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
+[-4, 4].each { |b|
   bias = b * 1e-4
   exp.image_pairs.clone( a,
                       h: PerturbedHomography.new( "roll_bias=#{bias}", a.homography,
@@ -34,20 +51,25 @@ exp = FlannExperiment.from_opts { |exp|
                                              yaw_var: 0.00 ) )
 }
 
+ratio = 1.4
+
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
-  exp.algorithms << BruteForceRatioMatcher.new( ratio: 1.4 )
+  exp.algorithms << BruteForceRatioMatcher.new( ratio )
   exp.algorithms << ManualGeometry.new
 #  exp.algorithms << L2SqrBruteForceMatcher.new
 #  exp.algorithms << CVFFIBruteForceMatcher.new
 #  exp.algorithms << CVFFIFlannMatcher.new
-  exp.algorithms << KdtreeFlannMatcher.new
+  exp.algorithms << KdTreeFlannMatcher.new
+  exp.algorithms << KdTreeFlannRatioMatcher.new(  ratio )
   exp.algorithms << KMeansFlannMatcher.new
+  exp.algorithms << KMeansFlannRatioMatcher.new(  ratio )
 
   #[1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
   [ 1, 1e2, 1e4].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
 #    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
-    exp.algorithms << ExtendedFlannMatcher.new( weight )
+    exp.algorithms << ExtendedKdTreeFlannMatcher.new( weight )
+    exp.algorithms << ExtendedKdTreeFlannRatioMatcher.new( weight, ratio )
   }
 
 }
