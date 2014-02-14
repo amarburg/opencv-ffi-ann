@@ -7,7 +7,7 @@ dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 sources = %w( descriptors.cpp 
               extended_descriptors.cpp
               to_from_ruby.cpp
-              flann.cpp
+              matchers.cpp
               cvffi_ann.cpp )
 
 Mkrf::Generator.new( 'libcvffi_ann_c', sources, compiler: "g++" ) do |gen|
