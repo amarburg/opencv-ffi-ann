@@ -51,6 +51,12 @@ class BruteForceRatioMatcher < BruteForceMatcher
   end
 
   def match_opts; { ratio: @ratio }; end
+
+  def to_h
+    h = super
+    h[:opts] = { ratio: @ratio }
+    h
+  end
 end
 
 
@@ -74,6 +80,12 @@ end
     }
 
     results
+  end
+
+  def to_h
+    h = super
+    h[:opts] = { weight: @weight }
+    h
   end
 end
 

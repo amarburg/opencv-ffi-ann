@@ -39,7 +39,7 @@ exp = FlannExperiment.from_opts { |exp|
   exp.algorithms << KdtreeFlannMatcher.new
   exp.algorithms << KMeansFlannMatcher.new
 
-  [1e2, 1e4, 1e6].each { |weight|
+  [1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
 #    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
     exp.algorithms << ExtendedFlannMatcher.new( weight )
@@ -50,8 +50,9 @@ exp = FlannExperiment.from_opts { |exp|
 exp.dump
 results = exp.run
 
-FileUtils.mkdir 'working' unless Dir.exist? 'working'
-filename = Pathname.new('working').join( 'results-' + Time.new.strftime("%j%H%M") + '.json' )
+working = Pathname.new(__FILE__).parent.expand_path.join("results")
+FileUtils.mkdir working unless Dir.exist? working
+filename = working.join( 'results-' + Time.new.strftime("%j%H%M") + '.json' )
 results.save( filename )
 
 loaded_results = LoadedResults.from_file filename 

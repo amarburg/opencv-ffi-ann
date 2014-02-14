@@ -29,6 +29,12 @@ class ExtendedFlannMatcher < FlannMatcher
 
     results
   end
+
+  def to_h
+    h = super
+    h[:opts] = { weight: @weight }
+    h
+  end
 end
 
 

@@ -55,8 +55,8 @@ class ImagePair
     end
   end
 
-  def a; @lib[image_a.basename]; end
-  def b; @lib[image_b.basename]; end
+  def a; @lib[image_a]; end
+  def b; @lib[image_b]; end
 
   def name
       "%s--%s" % [a.basename, b.basename ]
@@ -70,8 +70,8 @@ class ImagePair
   def true_homography; @hom.truth; end
 
   def to_h
-    { a: @image_a,
-      b: @image_b,
+    { a: image_a.basename,
+      b: image_b.basename,
       homography: @hom.to_h }
   end
 end

@@ -38,5 +38,11 @@ class ManualGeometry < BruteForceMatcher
 
     results
   end
+
+  def to_h
+    h = super
+    h[:opts] = { threshold: @threshold }
+    h
+  end
 end
 

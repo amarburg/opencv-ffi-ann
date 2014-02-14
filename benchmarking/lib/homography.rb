@@ -60,7 +60,7 @@ class PerturbedHomography < Homography
   
   def to_h
     h = { ref: @ref.to_a, 
-          homography: @perturbed }
+          h: @perturbed.to_a }
 
     [ :roll_var, :pitch_var, :yaw_var, 
       :roll_bias, :pitch_bias, :yaw_bias,
