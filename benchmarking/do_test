@@ -20,15 +20,19 @@ exp = FlannExperiment.from_opts { |exp|
 
 #  exp.image_pairs.clone( a,
 #                      h: PerturbedHomography.new( "recomposed", a.homography ) )
-#
-#  exp.image_pairs.clone( a,
-#                      h: PerturbedHomography.new( "roll_bias=0.001", a.homography,
-#                                             roll_bias: 0.001,
-#                                             pitch_bias: 0.00,
-#                                             yaw_bias: 0.00,
-#                                             roll_var: 0.00,
-#                                             pitch_var: 0.00,
-#                                             yaw_var: 0.00 ) )
+
+#[-10, -6, -4, -2, 2, 4, 6, 10].each { |b|
+[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
+  bias = b * 1e-4
+  exp.image_pairs.clone( a,
+                      h: PerturbedHomography.new( "roll_bias=#{bias}", a.homography,
+                                             roll_bias: bias,
+                                             pitch_bias: 0.00,
+                                             yaw_bias: 0.00,
+                                             roll_var: 0.00,
+                                             pitch_var: 0.00,
+                                             yaw_var: 0.00 ) )
+}
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
   exp.algorithms << BruteForceRatioMatcher.new( ratio: 1.4 )
@@ -39,7 +43,8 @@ exp = FlannExperiment.from_opts { |exp|
   exp.algorithms << KdtreeFlannMatcher.new
   exp.algorithms << KMeansFlannMatcher.new
 
-  [1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
+  #[1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
+  [ 1, 1e2, 1e4].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
 #    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
     exp.algorithms << ExtendedFlannMatcher.new( weight )

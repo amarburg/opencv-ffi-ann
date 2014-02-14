@@ -21,10 +21,11 @@ class LoadedAlgorithm
 end
 
 class LoadedHomography
-  attr_reader :name
+  attr_reader :name, :opts
   def initialize( name, h )
     @name = name
     @mat = Matrix.rows h
+    @opts = {}
   end
 
   def self.from_h( h )
@@ -54,7 +55,8 @@ class LoadedPerturbedHomography < LoadedHomography
 
     self.class.keys.each { |key|
       instance_variable_set "@#{key}", opts[key]
-      define_method( key ) { instance_variable_get( "@#{key}" ) }
+      @opts[key] = opts[key]
+      self.class.send( :define_method, key, Proc.new { instance_variable_get( "@#{key}" ) } )
     }
   end
 

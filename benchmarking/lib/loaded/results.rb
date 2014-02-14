@@ -34,6 +34,10 @@ class LoadedResults
     partition_by { |result| result.algorithm.name }
   end
 
+  def partition_by_algorithm_description
+    partition_by { |result| result.algorithm.description }
+  end
+
   def partition_by_pair
     partition_by { |result| result.pair.name }
   end
