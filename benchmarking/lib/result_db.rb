@@ -48,7 +48,14 @@ class Result
   end
 
   def find_by_a_idx( idx )
-    matches.select { |match| match.a_idx == idx }
+    # TODO: Build a hash table?
+    #   This should only need to happen in the reference result
+    unless @table
+      @table = Hash.new { |h,k| h[k] = [] }
+      @matches.each { |match| @table[match.a_idx] << match }
+    end
+    @table[ idx ]
+    #matches.select { |match| match.a_idx == idx }
   end
 
   def to_h

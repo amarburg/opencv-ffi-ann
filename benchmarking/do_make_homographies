@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-#: ft=ruby
 
 $LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
 
@@ -16,9 +15,17 @@ def motueka_four( file )
 end
 
 exp = HomographyExperiment.from_opts { |exp|
-  exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_four("IMG_7621.jpg") 
-  exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg")
-  exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg")
+  intrinsics = [[2.0343843616286724e+003, 0.0, 5.1627794342994264e+002],
+                [0.0, 2.0343843616286724e+003, 3.7591652333082891e+002],
+                [0.0, 0.0, 1.0] ]
+  img_7622 = InputImage.new( motueka_four( "IMG_7622.jpg" ), intrinsics: intrinsics )
+  img_7621 = InputImage.new( motueka_four( "IMG_7621.jpg" ), intrinsics: intrinsics )
+
+  exp.image_pairs.add img_7622, img_7621
+
+
+  #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg")
+  #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg")
 }
 
 exp.dump

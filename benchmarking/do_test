@@ -18,47 +18,51 @@ end
 exp = FlannExperiment.from_opts { |exp|
   exp.feature_library.do_normalize = false
 
-  a = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_four("IMG_7621.jpg"),
-    h: [[0.9755954191597045, 0.02225245262880853, 76.41152377955814], [-0.018338568357138502, 0.9884493576777186, 195.042692671482], [-2.4732302344798835e-05, 2.4687883810771773e-05, 1.0]]
+  intrinsics = [[1.2356896943224283e+003, 0.0, 4.7952768769135014e+002],
+                [0.0, 1.2356896943224283e+003, 3.2143130437560387e+002],
+                [0.0, 0.0, 1.0] ]
+  img_7622 = InputImage.new( motueka_four( "IMG_7622.jpg" ), intrinsics: intrinsics )
+  img_7621 = InputImage.new( motueka_four( "IMG_7621.jpg" ), intrinsics: intrinsics )
+  a = exp.image_pairs.add img_7622, img_7621, 
+    h: [[0.9572675734672509, -0.006485652854813033, 0.05433633799533488], [0.011967065974332645, 0.945230609688442, -0.14415166567666488], [-0.04972513961417013, -0.2570257592658151, 1.0]]
 
-
-  b = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg"),
-    h:  [[0.9018801725446839, 0.017438893117039132, -41.891015182272355], [-0.010321685432912255, 0.8953909005623429, 243.41450398071066], [-9.336278041235812e-06, 2.1332778189773873e-05, 1.0]]
-
-  c = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg"),
-    h: [[0.3584493783910275, -0.8285990120363144, 357.1625513564096], [0.4117464276583445, -0.963854999905202, 416.31902633065744], [0.0009958336678321323, -0.00231735800185345, 0.9999999999999999]]
-
-  #a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
+  #  b = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg"),
+  #    h:  [[0.9018801725446839, 0.017438893117039132, -41.891015182272355], [-0.010321685432912255, 0.8953909005623429, 243.41450398071066], [-9.336278041235812e-06, 2.1332778189773873e-05, 1.0]]
+  #
+  #  c = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg"),
+  #    h: [[0.3584493783910275, -0.8285990120363144, 357.1625513564096], [0.4117464276583445, -0.963854999905202, 416.31902633065744], [0.0009958336678321323, -0.00231735800185345, 0.9999999999999999]]
+  #
+  #  #a = exp.image_pairs.add( motueka_four( "IMG_7654.jpg" ), motueka_four("IMG_7655.jpg"),
   #                        h: [[1.0170562455513505, -0.017450624232426264, -50.05358022456928], 
   #                            [0.0029805681479836794, 0.9957693320894268, -126.469821712322], 
   #                            [2.987634889599195e-05, -5.363338092507913e-05, 1.0]] )
 
 
-#  exp.image_pairs.clone( a,
-#                      h: PerturbedHomography.new( "recomposed", a.homography ) )
+  #  exp.image_pairs.clone( a,
+  #                      h: PerturbedHomography.new( "recomposed", a.homography ) )
 
-#[-10, -6, -4, -2, 2, 4, 6, 10].each { |b|
-#[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
-[-4, 4].each { |b|
-  bias = b * 1e-4
-  exp.image_pairs.clone( a,
-                      h: PerturbedHomography.new( "roll_bias=#{bias}", a.homography,
-                                             roll_bias: bias,
-                                             pitch_bias: 0.00,
-                                             yaw_bias: 0.00,
-                                             roll_var: 0.00,
-                                             pitch_var: 0.00,
-                                             yaw_var: 0.00 ) )
-}
+  #[-10, -6, -4, -2, 2, 4, 6, 10].each { |b|
+  #[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
+#  [-4, 4].each { |b|
+#    bias = b * 1e-4
+#    exp.image_pairs.clone( a,
+#                          h: PerturbedHomography.new( "roll_bias=#{bias}", a.homography,
+#                                                     roll_bias: bias,
+#                                                       pitch_bias: 0.00,
+#                                                       yaw_bias: 0.00,
+#                                                       roll_var: 0.00,
+#                                                       pitch_var: 0.00,
+#                                                       yaw_var: 0.00 ) )
+#  }
 
-ratio = 1.4
+  ratio = 1.4
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
   exp.algorithms << BruteForceRatioMatcher.new( ratio )
   exp.algorithms << ManualGeometry.new
-#  exp.algorithms << L2SqrBruteForceMatcher.new
-#  exp.algorithms << CVFFIBruteForceMatcher.new
-#  exp.algorithms << CVFFIFlannMatcher.new
+  #  exp.algorithms << L2SqrBruteForceMatcher.new
+  #  exp.algorithms << CVFFIBruteForceMatcher.new
+  #  exp.algorithms << CVFFIFlannMatcher.new
   exp.algorithms << KdTreeFlannMatcher.new
   exp.algorithms << KdTreeFlannRatioMatcher.new(  ratio )
   exp.algorithms << KMeansFlannMatcher.new
@@ -67,15 +71,15 @@ ratio = 1.4
   #[1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
   [ 1, 1e2, 1e4].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
-#    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
+    #    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
     exp.algorithms << ExtendedKdTreeFlannMatcher.new( weight )
     exp.algorithms << ExtendedKdTreeFlannRatioMatcher.new( weight, ratio )
   }
 
 }
 
-exp.dump
-results = exp.run
+  exp.dump
+  results = exp.run
 
 working = Pathname.new(__FILE__).parent.expand_path.join("results")
 FileUtils.mkdir working unless Dir.exist? working

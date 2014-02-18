@@ -12,7 +12,21 @@ class ImagePairs
   end
 
   def add( a, b, opts = {} )
-    pair= ImagePair.new( @library, a, b, opts )
+    akey = if a.is_a? InputImage
+             @library[a.name] = a
+             a.name
+           else
+             a
+           end
+    bkey = if b.is_a? InputImage
+             @library[b.name] = b
+             b.name
+           else
+             b
+           end
+
+
+    pair= ImagePair.new( @library, akey, bkey, opts )
     @pairs << pair
     pair
   end

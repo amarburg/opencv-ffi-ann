@@ -52,10 +52,11 @@ class HomographyExperiment
 
       p h_result.h.to_Matrix.to_a
 
-      decomp = decompose_keep_near_nadir( h_result.h.to_Matrix )
+      decomp = decompose_homography( h_result.h.to_Matrix )
+      puts "Roll  pitch   yaw"
       decomp.each { |de|
         euler = de.r.to_euler_angles_roll_pitch_yaw
-        puts " %6.4f %6.4f %6.4f" % [euler.roll, euler.pitch, euler.yaw ]
+        puts " %6.4f %6.4f %6.4f" % [euler.roll_deg, euler.pitch_deg, euler.yaw_deg ]
       }
 
     }

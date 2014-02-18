@@ -7,12 +7,23 @@ class FeatureLibrary
   ID = :feature_library
   def initialize
     @do_normalize = false
-    @lib = Hash.new { |h,k|
-      features = SiftFeatures::extract_features( k )
+    @lib = Hash.new { |h,img|
+      features = SiftFeatures::extract_features( img )
 
+#      if img.intrinsics
+#        puts_pre ID, "Applying intrinsic calibration"
+#
+#        height = img.image_size.height
+#        features.each { |feat|
+#          f = img.kinv * Vector[feat.x, feat.y, 1.0]
+#
+#          feat.x = f[0] / f[2]
+#          feat.y = f[1] / f[2]
+#        }
+#
       if @do_normalize
 
-        norm = [k.image_size.height, k.image_size.width].max
+        norm = [img.image_size.height, img.image_size.width].max
         puts_pre ID, "Normalizing by %d" % norm
         features.each { |feat|
           feat.x /= norm
@@ -20,7 +31,7 @@ class FeatureLibrary
         }
       end
 
-      h[k] = features
+      h[img] = features
     }
   end
 

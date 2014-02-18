@@ -3,12 +3,25 @@ require "opencv-ffi-wrappers"
 
 
 class InputImage
+  attr_reader :intrinsics
 
   def initialize( pathname, opts = {} )
     @pathname = Pathname.new( pathname ).expand_path
     raise "Can't find image #{@pathname}" unless @pathname.readable?
 
     @scale = opts[:scale] || nil
+    
+    @intrinsics = if opts[:intrinsics] 
+                    case opts[:intrinsics]
+                    when Array
+                      Matrix.rows opts[:intrinsics]
+                    else
+                      opts[:intrinsics]
+                    end
+                  else
+                    nil
+                  end
+
   end
 
   def to_s; @pathname.to_s; end
@@ -17,6 +30,14 @@ class InputImage
     @pathname.basename.sub_ext("")
   end
   alias :name :basename
+
+  def kinv
+    @kinv ||= if @intrinsics 
+                @intrinsics.inv
+              else
+                nil
+              end
+  end
 
   def as_CvMat
     mat = CVFFI::IplImage.load( to_s ).to_CvMat
