@@ -42,7 +42,7 @@ end
 class KdTreeFlannRatioMatcher < KdTreeFlannMatcher
   def initialize( ratio = 1.4 )
     @ratio = ratio
-    set_description "%s (r=%f)" % [self.class.name, @ratio]
+    set_description "%s (r=%.1f)" % [self.class.name, @ratio]
   end
 
   def make_matcher
@@ -59,7 +59,7 @@ end
 class KMeansFlannRatioMatcher < KMeansFlannMatcher
   def initialize( ratio = 1.4 )
     @ratio = ratio
-    set_description "%s (r=%f)" % [self.class.name, @ratio]
+    set_description "%s (r=%.1f)" % [self.class.name, @ratio]
   end
 
   def make_matcher

@@ -48,37 +48,43 @@ exp = FlannExperiment.from_opts { |exp|
   #  exp.image_pairs.clone( a,
   #                      h: PerturbedHomography.new( "recomposed", a.homography ) )
 
-  #[-10, -6, -4, -2, 2, 4, 6, 10].each { |b|
   #[-10, -8, -6, -4, -2, 2, 4, 6, 8, 10].each { |b|
-  [-4, 4].each { |b|
-    bias = b * 1e-4
+  [-10, -6, -4, -2, -1, 1, 2, 4, 6, 10].each { |b|
+    bias = b * 4e-2
     exp.image_pairs.clone( a,
                           h: PerturbedHomography.new( "roll_bias=#{bias}", a.homography,
                                                      cam_7622, cam_7621,
-                                                     roll_bias: bias,
-                                                       pitch_bias: 0.00,
-                                                       yaw_bias: 0.00,
-                                                       roll_var: 0.00,
-                                                       pitch_var: 0.00,
-                                                       yaw_var: 0.00 ) )
+                                                     roll_bias: bias ) )
+    exp.image_pairs.clone( a,
+                          h: PerturbedHomography.new( "pitch_bias=#{bias}", a.homography,
+                                                     cam_7622, cam_7621,
+                                                       pitch_bias: bias ) )
+    exp.image_pairs.clone( a,
+                          h: PerturbedHomography.new( "yaw_bias=#{bias}", a.homography,
+                                                     cam_7622, cam_7621,
+                                                     yaw_bias: bias ) )
   }
+
 
   ratio = 1.4
 
   exp.algorithms << (exp.reference = BruteForceMatcher.new)
   exp.algorithms << BruteForceRatioMatcher.new( ratio )
-  exp.algorithms << ManualGeometry.new
-  exp.algorithms << ManualGeometryRatio.new( ratio )
   #  exp.algorithms << L2SqrBruteForceMatcher.new
   #  exp.algorithms << CVFFIBruteForceMatcher.new
   #  exp.algorithms << CVFFIFlannMatcher.new
-  exp.algorithms << KdTreeFlannMatcher.new
-  exp.algorithms << KdTreeFlannRatioMatcher.new(  ratio )
-  exp.algorithms << KMeansFlannMatcher.new
-  exp.algorithms << KMeansFlannRatioMatcher.new(  ratio )
+  
+  #exp.algorithms << KdTreeFlannMatcher.new
+  #exp.algorithms << KdTreeFlannRatioMatcher.new(  ratio )
+  #exp.algorithms << KMeansFlannMatcher.new
+  #exp.algorithms << KMeansFlannRatioMatcher.new(  ratio )
+
+  # The geometry-based matchers
+  exp.algorithms << ManualGeometry.new
+  exp.algorithms << ManualGeometryRatio.new( ratio )
 
   #[1e-4, 1e-2, 1, 1e2, 1e4, 1e6, 1e8, 1e10].each { |weight|
-  [ 1, 1e2, 1e4].each { |weight|
+  [ 1, 1e2, 1e4, 1e6].each { |weight|
     exp.algorithms << ExtendedBruteForceMatcher.new( weight )
     #    exp.algorithms << ExtendedCVFFIFlannMatcher.new( weight )
     exp.algorithms << ExtendedKdTreeFlannMatcher.new( weight )

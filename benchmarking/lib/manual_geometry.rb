@@ -52,7 +52,7 @@ class ManualGeometryRatio < ManualGeometry
   def initialize( threshold = 9.0, ratio = 1.4, opts = {} )
     super threshold, opts
     @ratio = ratio
-    set_description "%s (t=%.1f,r=%f)" % [name, @threshold, @ratio]
+    set_description "%s (t=%.1f,r=%.1f)" % [name, @threshold, @ratio]
   end
 
   def matcher

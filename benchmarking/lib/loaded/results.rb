@@ -58,6 +58,9 @@ class LoadedResults
     end
   end
 
+  def select( &blk )
+    LoadedResults.new @results.select( &blk )
+  end
 
   def self.from_h( h )
     raise "Can't find h[\"results\"]" unless h["results"]

@@ -7,6 +7,9 @@ $LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
 
 require 'flann_experiment'
 
+require "plots/per_algorithm_by_axis_bias"
+
+
 opts = Trollop::options do
   opt :verbose, "Be verbose", default: true
 end
@@ -29,7 +32,7 @@ def plot_path( *plot_name )
 end
 
 include Gnuplot
-Plot::format = "svg"
+Plot::format = "postscript"
 $VERBOSE = true
 
 #
@@ -68,7 +71,7 @@ results.partition_by_pair.each_pair { |pair,presults|
 
       plot.title "Fraction of inliers as function of weight on prior geometry for image pair %s with homography %s" % [pair, hom]
       plot.xlabel "k^2 weight"
-      plot.ylabel "Frac inliers"
+      plot.ylabel "Frac. inliers"
       plot.set "logscale", "x"
     }
   }
@@ -78,48 +81,10 @@ results.partition_by_pair.each_pair { |pair,presults|
 # For each image pair
 # Plot one line per algorithm, X is roll_bias, Y is  pct_inliers
 #
+
 results.partition_by_pair.each_pair { |pair,presults|
-
-  biases = presults.map { |result|
-    result.homography.opts[:roll_bias] if result.homography.opts
-  }.compact.uniq
-
-  bmin = 0
-  bmax = biases.max
-
-
-  Gnuplot::do_plot( plot_path( pair, "per_algorithm_by_roll_bias" ) ) { |plot|
-    presults.partition_by_algorithm_description.each_pair { |algo, paresults|
-
-      data = paresults.map { |res|
-        if res.homography.name == "ref"
-          [ 0, res.frac_inliers ]
-        else
-          [ res.homography.roll_bias, res.frac_inliers ]
-        end
-      }.sort { |a,b| b.first<=> a.first }
-
-#      data = case paresults.length
-#             when 1
-#               result = pharesults.first
-#               [ [ wmin, result.frac_inliers ],
-#                 [ wmax, result.frac_inliers ] ]
-#             else
-#               pharesults.map { |res|[ res.algo.opts[:weight], res.frac_inliers ] }
-#             end
-#
-      plot.data << Plot::DataSet.new( data.transpose ) do |ds|
-        ds.with = "lines"
-        ds.using = "1:2"
-        ds.title = algo
-      end
-    }
-
-
-    plot.title "Fraction of inliers as function of roll peturbation on prior geometry for image pair %s" % [pair]
-    plot.xlabel "Roll error (rad)"
-    plot.ylabel "Frac inliers"
-  }
+  per_algorithm_by_axis_bias( pair, presults, :roll_bias )
+  per_algorithm_by_axis_bias( pair, presults, :pitch_bias )
 }
 
 
