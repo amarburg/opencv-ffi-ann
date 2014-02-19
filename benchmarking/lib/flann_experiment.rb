@@ -42,6 +42,7 @@ class FlannExperiment
         features_a = feature_library[pair.a]
         features_b = feature_library[pair.b]
 
+        puts_pre "exp", "Running #{algo.name}" if opts[:verbose]
         matches = algo.match( features_a, features_b, homography: pair.homography )
         matches = Matches.new( matches, features_a, features_b )
 

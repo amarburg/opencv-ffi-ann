@@ -11,3 +11,7 @@ gem "opencv-ffi-ext", path: "~/workspace/opencv-ffi/opencv-ffi-ext"
 gem "experiment_support", path: "~/workspace/experiment_support"
 
 gem "aarons_gnuplot", git: "git@github.com:amarburg/aarons_gnuplot.git"
+
+gem "photoscan", path: "~/workspace/mosaic/photoscan"
+
+gem "ox"

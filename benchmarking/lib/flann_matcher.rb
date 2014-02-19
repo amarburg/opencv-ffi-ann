@@ -20,8 +20,8 @@ class KdTreeFlannMatcher < FlannMatcher
   def match( query, train, opts = {} )
 
     results = nil
-    
-matcher = make_matcher
+
+    matcher = make_matcher
     @train_time = Benchmark.measure {
       matcher.train train.descriptors_to_mat( :CV_32F ) 
     }
@@ -42,6 +42,7 @@ end
 class KdTreeFlannRatioMatcher < KdTreeFlannMatcher
   def initialize( ratio = 1.4 )
     @ratio = ratio
+    set_description "%s (r=%f)" % [self.class.name, @ratio]
   end
 
   def make_matcher
@@ -58,11 +59,13 @@ end
 class KMeansFlannRatioMatcher < KMeansFlannMatcher
   def initialize( ratio = 1.4 )
     @ratio = ratio
+    set_description "%s (r=%f)" % [self.class.name, @ratio]
   end
 
   def make_matcher
     CVFFI::ANN::KMeansFlannRatioMatcher.new( @ratio )
   end
+
   def to_h
     h = super
     h[:opts] = { ratio: @ratio }

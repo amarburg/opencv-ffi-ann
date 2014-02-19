@@ -17,6 +17,42 @@ class Homography
   end
 end
 
+
+class InterCameraHomography < Homography
+
+  def initialize( x, xp, opts = {} )
+    h_est = estimate_homography_from_cameras( x, xp )
+    super h_est, opts
+    @name = "photoscan"
+  end
+
+  def estimate_homography_from_cameras( x, xp )
+    # n.b. this is the same as     xp.world_to_body     * x.world_to_body.inv
+    inter = Photoscan::Transform.new xp.world_to_body.mat * x.body_to_world.mat
+
+    # Given the camera-to-camera body transform, can I turn that into an estimated homography?
+    #  Use the A - av^T formulation from H&Z
+    #  v = equation for plane.  Assume plane is on X,y plane at z = 0
+    xy_plane = Vector[ 0, 0, 1, 0]
+    xy_plane_cam = x.world_to_body.inv.mat.transpose * xy_plane
+    #xy_plane_cam.print( caption: "xy_plane_cam" )
+    # in-homogenize it
+    norm_plane = Matrix.rows [[ xy_plane_cam[0] / xy_plane_cam[3],
+                                xy_plane_cam[1] / xy_plane_cam[3],
+                                xy_plane_cam[2] / xy_plane_cam[3] ]]
+    #norm_plane.print( caption: "xy_plane_cam un-homogenized" )
+
+    h_est = xp.calibration.k * (inter.r_mat - inter.t_mat * norm_plane ) * x.calibration.k.inv
+    h_est = h_est.map { |x| x / h_est[2,2] }
+
+    #h_est.print("h_est")
+
+    h_est
+  end
+end
+
+
+
 class PerturbedHomography < Homography
   include ExperimentSupport::DecomposesHomography 
   include ExperimentSupport::Random

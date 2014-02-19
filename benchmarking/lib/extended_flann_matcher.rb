@@ -42,7 +42,7 @@ class ExtendedKdTreeFlannRatioMatcher < KdTreeFlannRatioMatcher
   def initialize( weight, ratio = 1.4, opts = {} )
     super ratio
     @weight = weight
-    set_description "%s (w=%.2e)" % [name, @weight]
+    set_description "%s (w=%.2e,r=%f)" % [name, @weight, @ratio]
   end
 
   def match( query, train,  opts = {} )

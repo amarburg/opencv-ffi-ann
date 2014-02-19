@@ -4,6 +4,7 @@ $LOAD_PATH << Pathname.new(__FILE__).parent.join("lib")
 
 require 'flann_experiment'
 require 'homography'
+require 'photoscan'
 
 def motueka_one( file )
   Pathname.new( "~/workspace/aerial_data_sets/motueka_quarter_scale/one" ).join(file).expand_path
@@ -18,13 +19,19 @@ end
 exp = FlannExperiment.from_opts { |exp|
   exp.feature_library.do_normalize = false
 
-  intrinsics = [[1.2356896943224283e+003, 0.0, 4.7952768769135014e+002],
-                [0.0, 1.2356896943224283e+003, 3.2143130437560387e+002],
-                [0.0, 0.0, 1.0] ]
-  img_7622 = InputImage.new( motueka_four( "IMG_7622.jpg" ), intrinsics: intrinsics )
-  img_7621 = InputImage.new( motueka_four( "IMG_7621.jpg" ), intrinsics: intrinsics )
+  four_cams = Photoscan::CameraFile.load( motueka_four("cameras.xml") )
+  cam_7622 = four_cams.find("IMG_7622.jpg")
+  cam_7621 = four_cams.find("IMG_7621.jpg")
+  
+
+
+  img_7622 = InputImage.new( motueka_four( "IMG_7622.jpg" ) )
+  img_7621 = InputImage.new( motueka_four( "IMG_7621.jpg" ) )
   a = exp.image_pairs.add img_7622, img_7621, 
-    h: [[0.9572675734672509, -0.006485652854813033, 0.05433633799533488], [0.011967065974332645, 0.945230609688442, -0.14415166567666488], [-0.04972513961417013, -0.2570257592658151, 1.0]]
+    h: [[0.9750788780314726, 0.021521753806821316, 76.60087519885455], [-0.017786517428322237, 0.9890629136969039, 194.52107090103038], [-2.5451965425081222e-05, 2.4869311079338425e-05, 1.0]]
+
+  b = exp.image_pairs.add img_7622, img_7621,
+    h: InterCameraHomography.new( cam_7622, cam_7621 )
 
   #  b = exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg"),
   #    h:  [[0.9018801725446839, 0.017438893117039132, -41.891015182272355], [-0.010321685432912255, 0.8953909005623429, 243.41450398071066], [-9.336278041235812e-06, 2.1332778189773873e-05, 1.0]]
