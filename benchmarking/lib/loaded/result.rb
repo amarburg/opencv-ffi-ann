@@ -19,6 +19,16 @@ class LoadedResult
 
   def homography; pair.homography; end
 
+  def print_latex
+    puts "%40s &  %20s & %10s &  % 6d &  % 4.2f &  % 7.2f  &  %12s & %12s & %12s \\" % 
+      [ algo.description, pair.name, pair.homography.name,
+        num_matches, pct_inliers, pct_accuracy,
+        (train_time ? ("% 8d" % (train_time.total*1e3)) : "--"),
+        (match_time ? ("% 8d" % (match_time.total*1e3)) : "--"),
+        ("% 8d" % (total_time.total*1e3))
+    ]
+  end
+
   def print
     puts "%40s %20s %10s   % 6d % 4.2f  % 7.2f  %12s %12s %12s" % 
       [ algo.description, pair.name, pair.homography.name,

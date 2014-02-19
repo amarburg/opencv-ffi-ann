@@ -57,6 +57,7 @@ class ImagePair
     @lib = image_library
 
     hom = opts[:h]
+
     case hom
     when Array
       @hom = Homography.new Matrix.rows hom 

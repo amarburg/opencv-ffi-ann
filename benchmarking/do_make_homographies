@@ -20,7 +20,6 @@ exp = HomographyExperiment.from_opts { |exp|
 
   exp.image_pairs.add img_7622, img_7621
 
-
   #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg")
   #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg")
 }

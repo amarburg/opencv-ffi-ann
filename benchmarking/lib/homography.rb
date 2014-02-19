@@ -20,11 +20,13 @@ end
 
 class InterCameraHomography < Homography
 
-  def initialize( x, xp, opts = {} )
-    h_est = estimate_homography_from_cameras( x, xp )
-    super h_est, opts
+  def initialize( x, xp, truth, opts = {} )
+    @h_est = estimate_homography_from_cameras( x, xp )
+    super truth, opts
     @name = "photoscan"
   end
+
+  def h; @h_est; end
 
   def estimate_homography_from_cameras( x, xp )
     # n.b. this is the same as     xp.world_to_body     * x.world_to_body.inv
@@ -57,7 +59,7 @@ class PerturbedHomography < Homography
   include ExperimentSupport::DecomposesHomography 
   include ExperimentSupport::Random
 
-  def initialize( name, ref, opts = {} )
+  def initialize( name, ref, x, xp, opts = {} )
     super ref, opts.merge({name: name})
 
     @ref = ref
@@ -70,6 +72,8 @@ class PerturbedHomography < Homography
     @pitch_bias = opts[:pitch_bias] || 0.0
     @yaw_bias = opts[:yaw_bias] || 0.0
 
+    # Strip off the calibration...
+    ref = xp.calibration.k.inv * ref * x.calibration.k
     
     decomp = decompose_homography( ref )
     decomp = decomp.find { |hom|
@@ -89,7 +93,7 @@ class PerturbedHomography < Homography
     angles.yaw += (@yaw_error = yaw_rand.rand)
     new_h = DecomposedHomography.new( decomp.h, angles.to_rotation_matrix, decomp.n )
 
-    @perturbed = new_h.recompose
+    @perturbed = xp.calibration.k * new_h.recompose * x.calibration.k.inv
   end
 
   def h; @perturbed; end

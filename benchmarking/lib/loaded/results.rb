@@ -18,6 +18,10 @@ class LoadedResults
     @results.each(&:print)
   end
 
+  def print_latex
+    @results.each(&:print_latex)
+  end
+
   ## Special case??
 
   def partition_by(&blk)

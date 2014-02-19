@@ -46,3 +46,22 @@ class ManualGeometry < BruteForceMatcher
   end
 end
 
+
+class ManualGeometryRatio < ManualGeometry
+
+  def initialize( threshold = 9.0, ratio = 1.4, opts = {} )
+    super threshold, opts
+    @ratio = ratio
+    set_description "%s (t=%.1f,r=%f)" % [name, @threshold, @ratio]
+  end
+
+  def matcher
+    CVFFI::ANN::BruteForceRatioMatcher.new( @ratio )
+  end
+
+  def to_h
+    h = super
+    h[:ratio] = @ratio
+    h
+  end
+end

@@ -37,12 +37,13 @@ class FlannExperiment
   def run
     image_pairs.each { |pair|
 
+      puts_pre "exp", "Testing with image pair #{pair.name} with homography #{pair.hom.name}"
       algorithms.each { |algo|
 
         features_a = feature_library[pair.a]
         features_b = feature_library[pair.b]
 
-        puts_pre "exp", "Running #{algo.name}" if opts[:verbose]
+        puts_pre "exp", "Running #{algo.name}" if verbose?
         matches = algo.match( features_a, features_b, homography: pair.homography )
         matches = Matches.new( matches, features_a, features_b )
 

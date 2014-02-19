@@ -16,6 +16,7 @@ results = ARGV.map { |file| LoadedResults.from_file file }
 results = results.reduce( LoadedResults.new ) { |m,v| m += v }
 
 results.print
+results.print_latex
 
 def plot_path( *plot_name )
   plot_dir = Pathname.new( "plots" )
