@@ -85,6 +85,7 @@ results.partition_by_pair.each_pair { |pair,presults|
 results.partition_by_pair.each_pair { |pair,presults|
   per_algorithm_by_axis_bias( pair, presults, :roll_bias )
   per_algorithm_by_axis_bias( pair, presults, :pitch_bias )
+  per_algorithm_by_axis_bias( pair, presults, :yaw_bias )
 }
 
 

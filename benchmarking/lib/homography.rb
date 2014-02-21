@@ -17,6 +17,15 @@ class Homography
   end
 end
 
+class SuppliedHomography < Homography
+  def initialize( name, h, ref, opts = {} )
+    super ref, opts
+    @h =Matrix.rows h
+    @name = name
+  end
+
+  def h; @h; end
+end
 
 class InterCameraHomography < Homography
 
