@@ -12,6 +12,6 @@ gem "experiment_support", path: "~/workspace/experiment_support"
 
 gem "aarons_gnuplot", git: "git@github.com:amarburg/aarons_gnuplot.git"
 
-gem "photoscan", path: "~/workspace/mosaic/photoscan"
+gem "photoscan_outputs", path: "~/workspace/mosaic/photoscan_outputs"
 
 gem "ox"

@@ -39,7 +39,7 @@ class HomographyExperiment
 
       params = CVFFI::Calib3d::FEstimatorParams.new( max_iters: 10e6,
                                                     confidence: 0.999999,
-                                                    outlier_threshold: 1,
+                                                    outlier_threshold: 3,
                                                     do_refine:  true )
 
       h_result = CVFFI::Calib3d.estimateHomography( matches.a_mat, matches.b_mat, params )

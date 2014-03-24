@@ -17,8 +17,17 @@ end
 exp = HomographyExperiment.from_opts { |exp|
   img_7622 = InputImage.new( motueka_four( "IMG_7622.jpg" ) )
   img_7621 = InputImage.new( motueka_four( "IMG_7621.jpg" ) )
+  origin = InputImage.new( motueka_four( "IMG_7620.jpg" ) )
 
-  exp.image_pairs.add img_7622, img_7621
+  img_7423 = InputImage.new motueka_three( "IMG_7423.jpg" )
+  one_6367 = InputImage.new motueka_one( "IMG_6367.jpg" )
+
+  exp.image_pairs.add img_7621, one_6367
+
+  #exp.image_pairs.add img_7621, img_7622
+
+  #exp.image_pairs.add img_7423, origin
+  #exp.image_pairs.add img_7423, img_7622
 
   #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_three("IMG_7422.jpg")
   #exp.image_pairs.add motueka_four( "IMG_7622.jpg" ), motueka_one("IMG_6365.jpg")
