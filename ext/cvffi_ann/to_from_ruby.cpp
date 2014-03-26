@@ -56,8 +56,13 @@ SiftFeatureVector from_ruby<SiftFeatureVector>( Object obj )
       vector.push_back( feat );
     }
 
+//  } else if( obj.is_instance_of( rb_eval_string("SiftResult") ) ) {
+//rb_raise( rb_eTypeError, "Trying to create SiftFeatureVector from SiftResult");
+//rb_cMat mat( rb_funcall( obj, rb_intern("descriptors") ) );
+//Array   kps( rb_funcall( obj, rb_intern("kps") ) );
+//
   } else { 
-    rb_raise(rb_eTypeError, "Can't create a SiftFeatureVector descriptors from this type");
+    rb_raise(rb_eTypeError, "Can't create a SiftFeatureVector from this type");
   }
 
   return vector;
