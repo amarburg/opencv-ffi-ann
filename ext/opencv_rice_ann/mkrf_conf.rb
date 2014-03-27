@@ -7,10 +7,10 @@ dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 sources = %w( descriptors.cpp 
               extended_descriptors.cpp
               to_from_ruby.cpp
-              matchers.cpp
-              cvffi_ann.cpp )
+              matchers/matchers.cpp
+              opencv_rice_ann.cpp )
 
-Mkrf::Generator.new( 'libcvffi_ann_c', sources, compiler: "g++" ) do |gen|
+Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|
   # TODO.  Shouldn't be fixed paths...
   #   (need to make "mkrf-rice" to correspond to "mkmf-rice"
   #
@@ -24,14 +24,14 @@ Mkrf::Generator.new( 'libcvffi_ann_c', sources, compiler: "g++" ) do |gen|
   # shared libraries of C++ code, so specify libraries manually for now
   #
   gen.cflags << [ "-ggdb",
-                  "-I" + dirs[:cvffi_ext].join("ext").to_s,
-                  "-I" + dirs[:rice].join("include").to_s,
-                  "-I" + dirs[:ffi].join("ext").to_s ].join(' ')
+                  "-I" + dirs[:cvrice].join("ext").to_s,
+                  "-I" + dirs[:rice].join("include").to_s ].join(' ')
 
   # n.b.  Libraries should be specified after the object files.  This 'objects' syntax
   # causes mkrf to place this text after the list of objects on the linker command line
   # (though before the other libs)
   gen.objects << [ "-L" + dirs[:rice].join("lib").to_s, "-lrice",
+                   '-L' + dirs[:cvrice].join('lib').to_s, '-lopencv_rice',
                   "-lopencv_core", "-lopencv_features2d",
                   "-lstdc++" ].join(' ')
 

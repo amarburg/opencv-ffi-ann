@@ -5,11 +5,9 @@ using std::vector;
 using std::endl;
 using std::cout;
 
-#include <opencv2/core/core_c.h>
 #include <opencv2/core.hpp>
+#include <opencv2/features2d.hpp>
 using namespace cv;
-
-#include <opencv2/flann.hpp>
 
 #include <rice/Class.hpp>
 #include <rice/Constructor.hpp>
@@ -19,31 +17,9 @@ using namespace Rice;
 #include "descriptors.h"
 #include "to_from_ruby.h"
 
-
-// Written as a "simplified wrapper" around the OpenCV flann toolset
-// mostly because I don't know how (heavily templated) Rice will react 
-// to the heavily templated OpenCV stuff..
-//
-// As always, the question is whether this is necessary or if the 
-// base class can be wrapped directly...
-//
-class Matcher {
-public:
-
-  Matcher() : _matcher(NULL)  
-  {;}
-  virtual ~Matcher() 
-  { if(_matcher) delete _matcher;}
-
-  virtual void train( const Mat descriptors );
-  virtual vector<DMatch> match( const Mat query, const Mat train );
-  virtual vector<DMatch> match( const Mat query );
-
-protected:
-
-  DescriptorMatcher *_matcher;
-
-};
+#include "matchers.h"
+#include "brute_force_matchers.h"
+#include "flann_matchers.h"
 
 void Matcher::train( const Mat descriptors )
 {
@@ -68,11 +44,7 @@ vector<DMatch> Matcher::match( const Mat query )
   return matches;
 }
 
-class L2BruteForceMatcher : public Matcher {
-public:
-  L2BruteForceMatcher( bool crosscheck = false ) : Matcher()
-  {  _matcher = new BFMatcher( NORM_L2, crosscheck ); }
-};
+//==============
 
 vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, float ratio )
 {
@@ -106,86 +78,12 @@ vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, const M
 
 
 
-class L2BruteForceRatioMatcher : public L2BruteForceMatcher {
-public:
-  L2BruteForceRatioMatcher( float ratio, bool crosscheck = false ) : L2BruteForceMatcher()
-  { _ratio = ratio; }
-
-  vector<DMatch> match( const Mat query, const Mat train )
-  { return ratio_match( _matcher, query, train, _ratio ); }
-
-protected:
-  float _ratio;
-};
-
-
-class L2SqrBruteForceMatcher : public Matcher {
-public:
-  L2SqrBruteForceMatcher( bool crosscheck = false ) : Matcher()
-  {  _matcher = new BFMatcher( NORM_L2SQR, crosscheck ); }
-};
-
-class KdTreeFlannMatcher : public Matcher {
-public:
-  KdTreeFlannMatcher() : Matcher()
-  {_matcher = new FlannBasedMatcher( makePtr<flann::KDTreeIndexParams>() ); }
-};
-
-class KdTreeFlannRatioMatcher : public KdTreeFlannMatcher {
-  public:
-    KdTreeFlannRatioMatcher( float ratio ) : KdTreeFlannMatcher()
-  { _ratio = ratio; }
-
-    vector<DMatch> match( const Mat query, const Mat train )
-    { return ratio_match( _matcher, query, train, _ratio ); }
-
-    vector<DMatch> match( const Mat query )
-    { return ratio_match( _matcher, query, _ratio ); }
-
-  protected:
-  float _ratio;
-};
-
-class KMeansFlannMatcher : public Matcher {
-public:
-  KMeansFlannMatcher() : Matcher()
-  {_matcher = new FlannBasedMatcher( makePtr<flann::KMeansIndexParams>() ); }
-};
-
-class KMeansFlannRatioMatcher : public KMeansFlannMatcher {
-  public:
-    KMeansFlannRatioMatcher( float ratio ) : KMeansFlannMatcher()
-  { _ratio = ratio; }
-
-    vector<DMatch> match( const Mat query, const Mat train )
-    { return ratio_match( _matcher, query, train, _ratio ); }
-
-    vector<DMatch> match( const Mat query )
-    { return ratio_match( _matcher, query, _ratio ); }
-
-  protected:
-  float _ratio;
-};
-//================================================
-
 
 int dmatch_queryIdx( const DMatch &dm ) { return dm.queryIdx; }
 int dmatch_trainIdx( const DMatch &dm ) { return dm.trainIdx; }
 int dmatch_imgIdx( const DMatch &dm ) { return dm.imgIdx; }
 float dmatch_distance( const DMatch &dm ) { return dm.distance; }
-
-  template<>
-Object to_ruby< vector<DMatch> >( vector<DMatch> const &matches )
-{
-  Array out;
-  for( vector<DMatch>::const_iterator itr = matches.begin(); itr != matches.end(); itr++ )
-  {
-    out.push( to_ruby( *itr ) );
-  }
-
-  return out;
-}
-
+//
 // From the Rice documentation
 typedef vector<DMatch> (Matcher::*train_match)( const Mat, const Mat );
 typedef vector<DMatch> (Matcher::*match_using_existing)( const Mat);
@@ -208,7 +106,7 @@ void define_train_matcher(Object &rb_module, const char *name )
     .define_method( "train_match", train_match(&Matcher::match) );
 }
 
-void init_flann_matcher( Object &rb_module ) {
+void init_matchers( Object &rb_module ) {
   //  Data_Type <cv::Mat> rc_cMat     = define_class_under<cv::Mat>( rb_module, "Mat" );
 
   Data_Type <Matcher> rc_cMatcher = define_class_under<Matcher>( rb_module, "Matcher" )

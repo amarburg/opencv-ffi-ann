@@ -1,39 +1,37 @@
 
-require 'libcvffi_ann_c'
+require 'libopencv_rice_ann'
 
-module CVFFI
+module CVRice
   module ANN
-    module Benchmarking
-      # Monkey-patching additional functionality into the Rice class 
-      # "Descriptors" in the extension library.
-      #
-      class Descriptors
-        # Rather than bring the CVFFI API into the C++ code,
-        # the C++ code returns a FFI::Pointer to a CvMat
-        # which can be re-wrapped in this function as an CvMat
-        # (n.b. it needs to be a FFI::Struct type, not, for example Mat)
-        alias_method :descriptors_to_mat_c, :descriptors_to_mat
-        def descriptors_to_mat( type = nil )
-          ptr = descriptors_to_mat_c( type )
-          CVFFI::CvMat.new ptr
-        end
+    # Monkey-patching additional functionality into the Rice class 
+    # "Descriptors" in the extension library.
+    #
+    class Descriptors
+      # Rather than bring the CVFFI API into the C++ code,
+      # the C++ code returns a FFI::Pointer to a CvMat
+      # which can be re-wrapped in this function as an CvMat
+      # (n.b. it needs to be a FFI::Struct type, not, for example Mat)
+      alias_method :descriptors_to_mat_c, :descriptors_to_mat
+      def descriptors_to_mat( type = nil )
+        ptr = descriptors_to_mat_c( type )
+        CVFFI::CvMat.new ptr
+      end
+    end
+
+    #
+    #
+    #
+    class ExtendedDescriptors
+      alias_method :descriptors_to_mat_c, :descriptors_to_mat
+      def descriptors_to_mat( type = nil )
+        ptr = descriptors_to_mat_c( type )
+        CVFFI::CvMat.new ptr
       end
 
-      #
-      #
-      #
-      class ExtendedDescriptors
-        alias_method :descriptors_to_mat_c, :descriptors_to_mat
-        def descriptors_to_mat( type = nil )
-          ptr = descriptors_to_mat_c( type )
-          CVFFI::CvMat.new ptr
-        end
-
-        alias_method :warp_descriptors_to_mat_c, :warp_descriptors_to_mat
-        def warp_descriptors_to_mat( h, type = nil  )
-          ptr = warp_descriptors_to_mat_c( h, type )
-          CVFFI::CvMat.new ptr
-        end
+      alias_method :warp_descriptors_to_mat_c, :warp_descriptors_to_mat
+      def warp_descriptors_to_mat( h, type = nil  )
+        ptr = warp_descriptors_to_mat_c( h, type )
+        CVFFI::CvMat.new ptr
       end
     end
 
@@ -84,5 +82,7 @@ module CVFFI
         L2BruteForceRatioMatcher.new( ratio, crosscheck )
       end
     end
+
+
   end
 end

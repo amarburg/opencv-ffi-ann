@@ -1,10 +1,10 @@
 
 class DirectorySet
 
-  def initialize( rakefile )
+  def initialize( me )
     @dirs = {}
 
-    @dirs[:top] = Pathname.new(rakefile).expand_path.parent
+    @dirs[:top] = Pathname.new( me ).parent.expand_path
 
     paths = []; topdir.descend{ |p| paths << p }
     @dirs[:workspace] = paths.reverse.find { |p| p.basename.to_s =~ /workspace/ }
@@ -21,9 +21,8 @@ class DirectorySet
     @dirs[:ffi] = @dirs[:gem].join(*%w(gems ffi-1.9.3 ))
     raise "Couldn't find the FFI source files at \"%s\"" % @dirs[:ffi] unless @dirs[:ffi]
 
-    @dirs[:cvffi_ext] = @dirs[:workspace].join('opencv-ffi','opencv-ffi-ext')
-    raise "Couldn't find opencv-ffi-ext" unless @dirs[:cvffi_ext]
-
+    @dirs[:cvrice] = @dirs[:workspace].join('opencv-ffi','opencv-rice')
+    raise "Couldn't find opencv-rice" unless @dirs[:cvrice]
 
     set_env_paths
   end
@@ -41,6 +40,7 @@ class DirectorySet
   def gtest; dir( :gtest ); end
   def workspace; dir( :workspace ); end
   def gemdir; dir(:gem);end
+  def cvrice; dir(:cvrice); end
 
   def rbconfig(a) 
     RbConfig::CONFIG[a]
@@ -60,8 +60,14 @@ class DirectorySet
 
     # TODO:  How to get ruby libdir automatically?
     ENV['LD_LIBRARY_PATH'] = [ rbconfig('rubylibdir') + "/lib",
+                               cvrice.join('lib'),
                                topdir.join("lib") ].join(':')
   end
 end
 
+def dirs
+  @dirs ||= DirectorySet.new(__FILE__)
+end
+
+dirs
 

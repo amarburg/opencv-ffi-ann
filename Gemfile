@@ -4,14 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem "mkrf", git: "git@github.com:amarburg/mkrf.git"
-gem "nice-ffi", git: "git@github.com:amarburg/nice-ffi.git"
-gem "opencv-ffi", path: "~/workspace/opencv-ffi/opencv-ffi"
-gem "opencv-ffi-ext", path: "~/workspace/opencv-ffi/opencv-ffi-ext"
+gem "opencv-rice", path: "~/workspace/opencv-ffi/opencv-rice"
 
-gem "experiment_support", path: "~/workspace/experiment_support"
 
-gem "aarons_gnuplot", git: "git@github.com:amarburg/aarons_gnuplot.git"
-
-gem "photoscan_outputs", path: "~/workspace/mosaic/photoscan_outputs"
-
-gem "ox"
