@@ -6,6 +6,8 @@
 
 #include <rice/Object.hpp>
 
+#include <opencv_rice/core/dmatch.h>
+
 #ifndef __CVRICE_MATCHERS_MATCHER_H__
 #define __CVRICE_MATCHERS_MATCHER_H__
 

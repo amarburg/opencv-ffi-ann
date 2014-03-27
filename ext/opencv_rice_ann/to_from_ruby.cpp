@@ -69,16 +69,16 @@ using namespace cv;
 //}
 
 
-  template<>
-Object to_ruby< vector<DMatch> >( vector<DMatch> const &matches )
-{
-  Array out;
-  for( vector<DMatch>::const_iterator itr = matches.begin(); itr != matches.end(); itr++ )
-  {
-    out.push( to_ruby( *itr ) );
-  }
-
-  return out;
-}
-
-
+//  template<>
+//Object to_ruby< vector<DMatch> >( vector<DMatch> const &matches )
+//{
+//  Array out;
+//  for( vector<DMatch>::const_iterator itr = matches.begin(); itr != matches.end(); itr++ )
+//  {
+//    out.push( to_ruby( *itr ) );
+//  }
+//
+//  return out;
+//}
+//
+//

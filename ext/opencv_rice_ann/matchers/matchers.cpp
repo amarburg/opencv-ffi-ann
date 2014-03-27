@@ -77,12 +77,6 @@ vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, const M
 }
 
 
-
-
-int dmatch_queryIdx( const DMatch &dm ) { return dm.queryIdx; }
-int dmatch_trainIdx( const DMatch &dm ) { return dm.trainIdx; }
-int dmatch_imgIdx( const DMatch &dm ) { return dm.imgIdx; }
-float dmatch_distance( const DMatch &dm ) { return dm.distance; }
 //
 // From the Rice documentation
 typedef vector<DMatch> (Matcher::*train_match)( const Mat, const Mat );
@@ -133,13 +127,5 @@ void init_matchers( Object &rb_module ) {
     .define_method( "train", &Matcher::train )
     .define_method( "match", match_using_existing(&Matcher::match) )
     .define_method( "train_match", train_match(&Matcher::match) );
-
-  Data_Type <DMatch> rc_cDMatch = define_class_under<cv::DMatch>( rb_module, "DMatch" )
-    .define_constructor( Constructor<cv::DMatch,int,int,float>() )
-    .define_method( "queryIdx", &dmatch_queryIdx )
-    .define_method( "trainIdx", &dmatch_trainIdx )
-    .define_method( "distance", &dmatch_distance )
-    .define_method( "imgIdx", &dmatch_imgIdx );
-
 
 }
