@@ -20,7 +20,7 @@ using namespace Rice;
 #include "to_from_ruby.h"
 
 
-Descriptors::Descriptors( const Mat &descriptors )
+Descriptors::Descriptors( const Mat descriptors )
   : _descriptors( descriptors )
 {;}
 
@@ -43,6 +43,6 @@ void init_descriptors( Object &rb_mParent ) {
     .define_constructor( Constructor<Descriptors,const Mat>() )
     .define_method( "length", &Descriptors::length )
     .define_method( "descriptor_length", &Descriptors::descriptor_length )
-    .define_method( "descriptors_to_mat", &Descriptors::descriptors_to_mat );
+    .define_method( "descriptors_to_mat", &Descriptors::descriptors_to_mat, (Arg("type") = 0) );
 }
 

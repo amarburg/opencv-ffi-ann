@@ -60,7 +60,7 @@ converted.copyTo( first );
   return out;
 }
 
-Mat ExtendedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
+Mat ExtendedDescriptors::warp_descriptors_to_mat( const Mat h, int type )
 {
   KeyPointVector warped;
 
@@ -85,8 +85,9 @@ Mat ExtendedDescriptors::warp_descriptors_to_mat( const Mat h, Symbol type )
 
 void init_extended_descriptors( Object &rb_mParent ) {
   Data_Type <ExtendedDescriptors> rc_cED = define_class_under<ExtendedDescriptors, Descriptors>( rb_mParent, "ExtendedDescriptors" )
-    .define_constructor( Constructor<ExtendedDescriptors,KeyPointVector,const Mat,double>() )
+    .define_constructor( Constructor<ExtendedDescriptors,KeyPointVector,const Mat,double>(), (Arg("keypoints"), Arg("descriptors"), Arg("weight") = 1) )
     .define_method( "length", &Descriptors::length )
-    .define_method( "descriptors_to_mat", &ExtendedDescriptors::descriptors_to_mat )
-    .define_method( "warp_descriptors_to_mat", &ExtendedDescriptors::warp_descriptors_to_mat );
+    .define_method( "descriptors_to_mat", &ExtendedDescriptors::descriptors_to_mat, (Arg("type") = 0 ) )
+    .define_method( "warp_descriptors_to_mat", &ExtendedDescriptors::warp_descriptors_to_mat,
+        (Arg("h"), Arg("type") = 0 ) );
 }

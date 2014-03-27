@@ -18,3 +18,13 @@ class TestDescriptors < Minitest::Test
   end
 
 end
+
+class TestExtendedDescriptors < Minitest::Test
+  include CVRice
+  include CVRice::ANN
+
+  def test_extended_descriptors
+    desc = ExtendedDescriptors.new( [], Mat.new )
+    assert_equal 0, desc.length
+  end
+end
