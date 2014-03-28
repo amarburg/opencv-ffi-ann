@@ -37,9 +37,9 @@ Mat ExtendedDescriptors::descriptors_to_mat( int type )
 
   Mat out( num_descriptors(), descriptor_length() + 2, type );
 
-  Mat first = _descriptors.colRange( 0, descriptor_length() );
   Mat converted;
   _descriptors.convertTo( converted, type );
+  Mat first = out.colRange( 0, descriptor_length() );
   converted.copyTo( first );
 
   for( unsigned int r = 0; r < num_descriptors(); ++r ) {
@@ -47,16 +47,8 @@ Mat ExtendedDescriptors::descriptors_to_mat( int type )
 
     switch(type) {
       case CV_32F:
-        cout << "Feat: " << feat.pt.x << ' ' << feat.pt.y << endl;
-
         out.at<float>(r,descriptor_length()  ) = _weight * feat.pt.x;
         out.at<float>(r,descriptor_length()+1) = _weight * feat.pt.y;
-
-
-        for( unsigned int i = 0; i < descriptor_length() + 2; ++i ) {
-          cout << out.at<float>(r,i) << ' ';
-        }
-        cout << endl;
         break;
       case CV_64F:
         out.at<double>(r,descriptor_length()  ) = _weight * feat.pt.x;
@@ -99,5 +91,7 @@ void init_extended_descriptors( Object &rb_mParent ) {
   Data_Type <ExtendedDescriptors> rc_cED = define_class_under<ExtendedDescriptors, Descriptors>( rb_mParent, "ExtendedDescriptors" )
     .define_constructor( Constructor<ExtendedDescriptors,KeyPointVector,const Mat,double>(), (Arg("keypoints"), Arg("descriptors"), Arg("weight") = 1) )
     .define_method( "descriptors_to_mat", &ExtendedDescriptors::descriptors_to_mat, (Arg("type") = 0 ) )
-    .define_method( "warp_descriptors", &ExtendedDescriptors::warp_descriptors );
+    .define_method( "descriptors", &ExtendedDescriptors::descriptors_to_mat, (Arg("type") = 0 ) )
+    .define_method( "warp_descriptors", &ExtendedDescriptors::warp_descriptors )
+    .define_method( "warp", &ExtendedDescriptors::warp_descriptors );
 }

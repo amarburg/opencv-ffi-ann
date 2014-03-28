@@ -25,6 +25,13 @@ using namespace Rice;
 
 void Matcher::train( const Mat descriptors )
 {
+
+//  cout << "Train: " << endl;
+//        for( unsigned int i = 0; i < descriptors.cols; ++i ) {
+//          cout << descriptors.at<float>(0,i) << ' ';
+//        }
+//        cout << endl;
+
   vector<Mat> train_desc;
   train_desc.push_back( descriptors );
 
@@ -68,6 +75,13 @@ vector<DMatch> Matcher::ratio_match( const Mat query, float ratio )
 vector<DMatch> Matcher::ratio_match( const Mat query, const Mat train, float ratio )
 {
   vector<vector<DMatch> > match_pairs;
+
+//  cout << "Ratio_match: " << endl;
+//        for( unsigned int i = 0; i < query.cols; ++i ) {
+//          cout << query.at<float>(0,i) << ' ';
+//        }
+//        cout << endl;
+
   _matcher->knnMatch( query, train, match_pairs, 2 );
   return filter_ratio_matches( match_pairs, ratio );
 }
