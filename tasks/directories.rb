@@ -38,9 +38,20 @@ class DirectorySet
   # Convenience macros
   def topdir; dir( :top ); end
   def gtest; dir( :gtest ); end
+  def ffi; dir(:ffi );end
   def workspace; dir( :workspace ); end
   def gemdir; dir(:gem);end
+  def rice; dir(:rice); end
   def cvrice; dir(:cvrice); end
+
+  def ruby_cflags
+    [ "-I#{rbconfig_dir('rubyhdrdir')}",
+      "-I#{rbconfig_dir('rubyarchhdrdir')}" ]
+  end
+
+    def ruby_ldflags
+      [ rbconfig('LIBRUBYARG') ]
+    end
 
   def rbconfig(a) 
     RbConfig::CONFIG[a]
@@ -54,12 +65,11 @@ class DirectorySet
     ENV['TOP_DIR'] = topdir.to_s
     ENV['GTEST_DIR'] = gtest.to_s
     ENV['RICE_DIR'] = dir(:rice).to_s
-    ENV['RB_LIB_ARGS'] = rbconfig('LIBRUBYARG')
-    ENV['RB_INCLUDE_ARGS'] = [ "-I" + rbconfig_dir('rubyhdrdir').join("ruby").to_s,
-                               "-I" + rbconfig_dir('rubyarchhdrdir').join("ruby").to_s ].join(' ')
-
+    ENV['RB_LIB_ARGS'] = ruby_ldflags.join(' ')
+    ENV['RB_INCLUDE_ARGS'] = ruby_cflags.join(' ')
     # TODO:  How to get ruby libdir automatically?
-    ENV['LD_LIBRARY_PATH'] = [ rbconfig('rubylibdir') + "/lib",
+    ENV['LD_LIBRARY_PATH'] = [rbconfig('rubylibdir') + "/lib", 
+                              ffi.join('lib'),
                                cvrice.join('lib'),
                                topdir.join("lib") ].join(':')
   end

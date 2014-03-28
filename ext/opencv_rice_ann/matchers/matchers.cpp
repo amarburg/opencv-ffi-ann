@@ -21,6 +21,8 @@ using namespace Rice;
 #include "brute_force_matchers.h"
 #include "flann_matchers.h"
 
+#include <iostream>
+
 void Matcher::train( const Mat descriptors )
 {
   vector<Mat> train_desc;
@@ -44,31 +46,11 @@ vector<DMatch> Matcher::match( const Mat query )
   return matches;
 }
 
-//==============
-
-vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, float ratio )
+static vector<DMatch> filter_ratio_matches( vector< vector<DMatch> > const &match_pairs, float ratio )
 {
-  vector<vector<DMatch> > match_pairs;
   vector<DMatch> keep;
-  matcher->knnMatch( query, match_pairs, 2 );
-
-  for( vector<vector<DMatch> >::iterator itr = match_pairs.begin(); itr != match_pairs.end(); itr++ ) {
-    vector<DMatch> &pair( *itr );
-    bool do_keep = pair[1].distance > (ratio * pair[0].distance);
-//printf("%f %f %s\n", pair[1].distance, pair[0].distance, (do_keep ? "yes" : "no") );
-    if( do_keep ) keep.push_back(pair[0]);
-  }
-  return keep;
-}
-
-vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, const Mat train, float ratio )
-{
-  vector<vector<DMatch> > match_pairs;
-  vector<DMatch> keep;
-  matcher->knnMatch( query, train, match_pairs, 2 );
-
-  for( vector<vector<DMatch> >::iterator itr = match_pairs.begin(); itr != match_pairs.end(); itr++ ) {
-    vector<DMatch> &pair( *itr );
+  for( vector<vector<DMatch> >::const_iterator itr = match_pairs.begin(); itr != match_pairs.end(); itr++ ) {
+    const vector<DMatch> &pair( *itr );
     bool do_keep = pair[1].distance > (ratio * pair[0].distance);
     //printf("%f %f %s\n", pair[1].distance, pair[0].distance, (do_keep ? "yes" : "no") );
     if( do_keep ) keep.push_back(pair[0]);
@@ -76,7 +58,21 @@ vector<DMatch> ratio_match( DescriptorMatcher *matcher, const Mat query, const M
   return keep;
 }
 
+vector<DMatch> Matcher::ratio_match( const Mat query, float ratio )
+{
+  vector<vector<DMatch> > match_pairs;
+  _matcher->knnMatch( query, match_pairs, 2 );
+  return filter_ratio_matches( match_pairs, ratio );
+}
 
+vector<DMatch> Matcher::ratio_match( const Mat query, const Mat train, float ratio )
+{
+  vector<vector<DMatch> > match_pairs;
+  _matcher->knnMatch( query, train, match_pairs, 2 );
+  return filter_ratio_matches( match_pairs, ratio );
+}
+
+//==============
 //
 // From the Rice documentation
 typedef vector<DMatch> (Matcher::*train_match)( const Mat, const Mat );

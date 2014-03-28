@@ -9,16 +9,19 @@ using std::vector;
 #define __DESCRIPTORS_H__
 
 class Descriptors {
+
   public:
 
     Descriptors( const cv::Mat descriptors );
     virtual ~Descriptors( void );
 
-    int length( void ) { return _descriptors.rows; }
-    int descriptor_length( void ) { return _descriptors.cols; }
+    unsigned int num_descriptors( void ) { return _descriptors.rows; }
+    unsigned int descriptor_length( void ) { return _descriptors.cols; }
 
     // TODO:  specifying the type (CV_32F, CV_64F) of the output 
     virtual cv::Mat descriptors_to_mat( int type = 0 );
+
+    const cv::Mat &descriptors() { return _descriptors; }
     
   protected:
 
@@ -29,13 +32,17 @@ class Descriptors {
 typedef vector<cv::KeyPoint> KeyPointVector;
 
 class ExtendedDescriptors : public Descriptors {
+
   public:
 
-    ExtendedDescriptors( KeyPointVector vector, const Mat descriptors, double weight = 1.0 );
+    ExtendedDescriptors( KeyPointVector vector, const cv::Mat descriptors, double weight = 1.0 );
     virtual ~ExtendedDescriptors( void );
 
-    virtual Mat descriptors_to_mat( int type = 0 );
-    cv::Mat warp_descriptors_to_mat( const cv::Mat h, int type );
+    virtual cv::Mat descriptors_to_mat( int type = 0 );
+    ExtendedDescriptors warp_descriptors( const cv::Mat h );
+
+    const KeyPointVector &keypoints() { return _kps; }
+    const cv::KeyPoint &keypoint( int idx ) { return _kps[idx]; }
 
   protected:
 

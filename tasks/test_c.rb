@@ -12,14 +12,23 @@ namespace :test_c do
   objs     = srcs.map { |f| Pathname.new(f).sub_ext('.o').to_s }
 
   cpp      = 'g++'
-  cflags   = ['-ggdb',
-              "-I#{dirs.gtest}/include"]
+  cflags   = dirs.ruby_cflags + ['-ggdb',
+              "-I#{dirs.rice.join('include')}",
+              "-I#{dirs.cvrice.join('ext')}",
+              '-Iext/',
+              "-I#{dirs.gtest.join('include')}"]
   ldflags  = cflags
-  libs  = ["-L#{dirs.gtest}/build", '-lgtest', '-lpthread']
+  libs  = dirs.ruby_ldflags + 
+    ["-L#{dirs.gtest}/build", '-lgtest', '-lpthread',
+     '-lopencv_core',
+     "-L#{dirs.rice.join('lib')}", '-lrice',
+     "-L#{dirs.ffi.join('lib')}", '-lffi_c',
+     "-L#{dirs.cvrice}/lib", '-lopencv_rice',
+     '-Llib/', '-lopencv_rice_ann']
 
-  file test_app => [:ext] + objs do
-    sh [ cpp,  *ldflags, 
-         '-o', test_app, *objs, *libs ].join(' ')
+    file test_app => [:ext] + objs do
+      sh [ cpp,  *ldflags, 
+           '-o', test_app, *objs, *libs ].join(' ')
   end
 
   srcs.each { |src|
@@ -49,3 +58,6 @@ namespace :test_c do
   end
 end
 
+namespace :gdb do
+  task :test_c => "test_c:gdb".to_sym
+end

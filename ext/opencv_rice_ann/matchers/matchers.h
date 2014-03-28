@@ -33,6 +33,9 @@ public:
 
 protected:
 
+  std::vector<cv::DMatch> ratio_match( const cv::Mat query, float ratio );
+  std::vector<cv::DMatch> ratio_match( const cv::Mat query, const cv::Mat train, float ratio );
+
   cv::DescriptorMatcher *_matcher;
 
 };
