@@ -4,6 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem "mkrf", git: "git@github.com:amarburg/mkrf.git"
-gem "opencv-rice", path: "~/workspace/opencv-ffi/opencv-rice"
+gem "opencv-rice", path: "~/workspace/opencv-rice/opencv-rice"
 
 

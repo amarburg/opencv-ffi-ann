@@ -22,7 +22,6 @@ namespace :test_c do
     ["-L#{dirs.gtest}/build", '-lgtest', '-lpthread',
      '-lopencv_core',
      "-L#{dirs.rice.join('lib')}", '-lrice',
-     "-L#{dirs.ffi.join('lib')}", '-lffi_c',
      "-L#{dirs.cvrice}/lib", '-lopencv_rice',
      '-Llib/', '-lopencv_rice_ann']
 

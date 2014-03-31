@@ -18,10 +18,7 @@ class DirectorySet
     @dirs[:rice] = @dirs[:gem].join(*%w(gems rice-1.6.0 ruby lib))
     raise "Couldn't find the Rice source files \"%s\"" % @dirs[:rice] unless @dirs[:rice]
 
-    @dirs[:ffi] = @dirs[:gem].join(*%w(gems ffi-1.9.3 ))
-    raise "Couldn't find the FFI source files at \"%s\"" % @dirs[:ffi] unless @dirs[:ffi]
-
-    @dirs[:cvrice] = @dirs[:workspace].join('opencv-ffi','opencv-rice')
+    @dirs[:cvrice] = @dirs[:workspace].join('opencv-rice','opencv-rice')
     raise "Couldn't find opencv-rice" unless @dirs[:cvrice]
 
     set_env_paths
@@ -38,7 +35,6 @@ class DirectorySet
   # Convenience macros
   def topdir; dir( :top ); end
   def gtest; dir( :gtest ); end
-  def ffi; dir(:ffi );end
   def workspace; dir( :workspace ); end
   def gemdir; dir(:gem);end
   def rice; dir(:rice); end
@@ -69,7 +65,6 @@ class DirectorySet
     ENV['RB_INCLUDE_ARGS'] = ruby_cflags.join(' ')
     # TODO:  How to get ruby libdir automatically?
     ENV['LD_LIBRARY_PATH'] = [rbconfig('rubylibdir') + "/lib", 
-                              ffi.join('lib'),
                                cvrice.join('lib'),
                                topdir.join("lib") ].join(':')
   end

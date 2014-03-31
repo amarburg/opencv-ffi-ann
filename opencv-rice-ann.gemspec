@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest"
 
   spec.add_dependency "rice"
+  spec.add_dependency "opencv-rice"
 end
