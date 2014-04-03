@@ -7,7 +7,7 @@ dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 sources = %w( descriptors.cpp 
               extended_descriptors.cpp
               to_from_ruby.cpp
-              matchers/matchers.cpp
+              matchers/*.cpp
               opencv_rice_ann.cpp )
 
 Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|

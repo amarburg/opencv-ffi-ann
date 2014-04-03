@@ -1,3 +1,5 @@
+*.o
+*.so
 *.gem
 *.rbc
 .bundle
@@ -11,6 +13,10 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+Gemfile.lock
+test_c/test_app
+ext/opencv_rice_ann/Rakefile
+ext/opencv_rice_ann/mkrf.log
 
 # YARD artifacts
 .yardoc

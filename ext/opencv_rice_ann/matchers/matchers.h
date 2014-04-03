@@ -7,6 +7,7 @@
 #include <rice/Object.hpp>
 
 #include <opencv_rice/core/dmatch.h>
+#include <opencv_rice/core/keypoint.h>
 
 #ifndef __CVRICE_MATCHERS_MATCHER_H__
 #define __CVRICE_MATCHERS_MATCHER_H__
@@ -42,6 +43,17 @@ protected:
 
 std::vector<cv::DMatch> ratio_match( cv::DescriptorMatcher *matcher, const cv::Mat query, float ratio );
 std::vector<cv::DMatch> ratio_match( cv::DescriptorMatcher *matcher, const cv::Mat query, const cv::Mat train, float ratio );
+
+
+class FeatureSet {
+  public:
+
+    FeatureSet( const KeyPointVector &kps_, const Mat &desc_ )
+      : kps( kps_ ), desc( desc_ ) {;}
+
+    KeyPointVector kps;
+    Mat desc;
+};
 
 void init_matchers( Rice::Object &rb_module );
 
