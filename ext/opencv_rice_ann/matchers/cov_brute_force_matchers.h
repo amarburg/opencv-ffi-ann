@@ -31,20 +31,35 @@ namespace CVRice {
 
 
 
-  class CovarianceBruteForceMatcher  {
+  class CovarianceBFMatcher  {
     public:
-      CovarianceBruteForceMatcher( const Matx33d h, const Mat hcov, double weight = 1.0  );
+      CovarianceBFMatcher( const Matx33d h, const Mat hcov, float weight = 1.0 );
+      virtual ~CovarianceBFMatcher() {;}
 
-      std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
+      virtual std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
 
     protected:
       Point2d map_lr( const Point2d &pt );
       Matx22d point_covariance( const Point2d &pt );
       double reproj_distance( const Point2d &q, const Point2d &t );
 
+      std::vector< std::vector<cv::DMatch> > do_match( const Mat &query, const Mat &train );
+
       Matx33d _h;
       Matx<double, 8, 8> _hcov;
       double _weight;
+      int _knnDepth;
+  };
+
+  class CovarianceBFRatioMatcher : public CovarianceBFMatcher {
+    public:
+      CovarianceBFRatioMatcher( const Matx33d h, const Mat hcov, float weight = 1.0, float ratio = 0.0 );
+      virtual ~CovarianceBFRatioMatcher() {;}
+
+      virtual std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
+
+    protected:
+      float _ratio;
   };
 
 };

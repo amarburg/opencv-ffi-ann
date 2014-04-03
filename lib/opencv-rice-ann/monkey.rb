@@ -35,17 +35,22 @@ module CVRice
     class BruteForceMatcher
       def self.new( norm, crosscheck = false )
         case norm
-        when :L2
-          L2BruteForceMatcher.new( crosscheck )
         when :L2SQR
           L2SqrBruteForceMatcher.new( crosscheck )
+        else
+          L2BruteForceMatcher.new( crosscheck )
         end
       end
     end
 
     class BruteForceRatioMatcher
       def self.new( ratio, crosscheck = true )
-        L2BruteForceRatioMatcher.new( ratio, crosscheck )
+        case norm
+        when :L2SQR
+          L2SqrBFRatioMatcher.new( ratio, crosscheck )
+        else
+          L2BFRatioMatcher.new( ratio, crosscheck )
+        end
       end
     end
 

@@ -12,9 +12,9 @@ class L2BruteForceMatcher : public Matcher {
       : Matcher() {  _matcher = new cv::BFMatcher( NORM_L2, crosscheck ); }
 };
 
-class L2BruteForceRatioMatcher : public L2BruteForceMatcher {
+class L2BFRatioMatcher : public L2BruteForceMatcher {
   public:
-    L2BruteForceRatioMatcher( float ratio, bool crosscheck = false )
+    L2BFRatioMatcher( float ratio, bool crosscheck = false )
       : L2BruteForceMatcher() { _ratio = ratio; }
 
     vector<cv::DMatch> match( const cv::Mat query, const cv::Mat train ) 
@@ -30,6 +30,19 @@ class L2SqrBruteForceMatcher : public Matcher {
     L2SqrBruteForceMatcher( bool crosscheck = false ) : Matcher()
   {  _matcher = new cv::BFMatcher( NORM_L2SQR, crosscheck ); }
 };
+
+class L2SqrBFRatioMatcher : public L2SqrBruteForceMatcher {
+  public:
+    L2SqrBFRatioMatcher( float ratio, bool crosscheck = false ) 
+      : L2SqrBruteForceMatcher( crosscheck ), _ratio(ratio*ratio) {;}
+
+    vector<cv::DMatch> match( const cv::Mat query, const cv::Mat train ) 
+    { return ratio_match( query, train, _ratio ); }
+
+  protected:
+    float _ratio;
+};
+
 
 
 

@@ -122,8 +122,12 @@ void init_matchers( Object &rb_module ) {
   define_bf_matcher<L2BruteForceMatcher>( rb_module, "L2BruteForceMatcher" );
   define_bf_matcher<L2SqrBruteForceMatcher>( rb_module, "L2SqrBruteForceMatcher" );
 
-  define_class_under<L2BruteForceRatioMatcher,L2BruteForceMatcher>( rb_module, "L2BruteForceRatioMatcher" )
-    .define_constructor( Constructor<L2BruteForceRatioMatcher,float,bool>(), (Arg("ratio"), Arg("crosscheck") = false) )
+  define_class_under<L2BFRatioMatcher,L2BruteForceMatcher>( rb_module, "L2BFRatioMatcher" )
+    .define_constructor( Constructor<L2BFRatioMatcher,float,bool>(), (Arg("ratio"), Arg("crosscheck") = false) )
+    .define_method( "match", train_match(&Matcher::match) );
+
+  define_class_under<L2SqrBFRatioMatcher,L2SqrBruteForceMatcher>( rb_module, "L2SqrBFRatioMatcher" )
+    .define_constructor( Constructor<L2SqrBFRatioMatcher,float,bool>(), (Arg("ratio"), Arg("crosscheck") = false) )
     .define_method( "match", train_match(&Matcher::match) );
 
   define_train_matcher<KdTreeFlannMatcher>( rb_module, "KdTreeFlannMatcher" );
@@ -142,9 +146,13 @@ void init_matchers( Object &rb_module ) {
 
 
 
-  define_class_under<CovarianceBruteForceMatcher>( rb_module, "CovarianceBruteForceMatcher" )
-    .define_constructor( Constructor<CovarianceBruteForceMatcher,Matx33d &,Mat &,double>())
-    .define_method( "match", &CovarianceBruteForceMatcher::match );
+  define_class_under<CovarianceBFMatcher>( rb_module, "CovarianceBFMatcher" )
+    .define_constructor( Constructor<CovarianceBFMatcher,Matx33d,Mat,float>())
+    .define_method( "match", &CovarianceBFMatcher::match );
+
+  define_class_under<CovarianceBFRatioMatcher,CovarianceBFMatcher>( rb_module, "CovarianceBFRatioMatcher" )
+    .define_constructor( Constructor<CovarianceBFRatioMatcher,Matx33d,Mat,float,float>())
+    .define_method( "match", &CovarianceBFRatioMatcher::match );
 
   define_class_under<FeatureSet>( rb_module, "FeatureSet" )
     .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() );
