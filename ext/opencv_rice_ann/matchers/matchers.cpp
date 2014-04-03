@@ -21,6 +21,7 @@ using namespace Rice;
 #include "brute_force_matchers.h"
 #include "flann_matchers.h"
 #include "cov_brute_force_matchers.h"
+using namespace CVRice;
 
 #include <iostream>
 
@@ -142,9 +143,14 @@ void init_matchers( Object &rb_module ) {
 
 
   define_class_under<CovarianceBruteForceMatcher>( rb_module, "CovarianceBruteForceMatcher" )
-    .define_constructor( Constructor<CovarianceBruteForceMatcher,Matx33d &,Mat &>(), (Arg("crosscheck") = false) )
-    .define_method( "match", train_match(&CovarianceBruteForceMatcher::match) );
+    .define_constructor( Constructor<CovarianceBruteForceMatcher,Matx33d &,Mat &,double>())
+    .define_method( "match", &CovarianceBruteForceMatcher::match );
 
   define_class_under<FeatureSet>( rb_module, "FeatureSet" )
-    .define_constructor( Constructor<FeatureSet,KeyPointVector &,Mat &>() );
+    .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() );
+
+  define_class_under<GeomDMatch, DMatch>( rb_module, "GeomDMatch" )
+    .define_method( "geom_distance", &get_geomdmatch_geomdistance )
+    .define_method( "desc_distance", &get_geomdmatch_descdistance )
+    .define_method( "weight", &get_geomdmatch_weight );
 }

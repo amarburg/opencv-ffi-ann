@@ -48,11 +48,11 @@ std::vector<cv::DMatch> ratio_match( cv::DescriptorMatcher *matcher, const cv::M
 class FeatureSet {
   public:
 
-    FeatureSet( const KeyPointVector &kps_, const Mat &desc_ )
+    FeatureSet( const KeyPointVector kps_, const cv::Mat desc_ )
       : kps( kps_ ), desc( desc_ ) {;}
 
     KeyPointVector kps;
-    Mat desc;
+    cv::Mat desc;
 };
 
 void init_matchers( Rice::Object &rb_module );
