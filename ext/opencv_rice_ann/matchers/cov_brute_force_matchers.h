@@ -33,7 +33,7 @@ namespace CVRice {
 
   class CovarianceBruteForceMatcher  {
     public:
-      CovarianceBruteForceMatcher( const Matx33d &h, const Mat &hcov, double weight = 1.0  );
+      CovarianceBruteForceMatcher( const Matx33d h, const Mat hcov, double weight = 1.0  );
 
       std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
 
@@ -43,7 +43,7 @@ namespace CVRice {
       double reproj_distance( const Point2d &q, const Point2d &t );
 
       Matx33d _h;
-      Mat _hcov;
+      Matx<double, 8, 8> _hcov;
       double _weight;
   };
 

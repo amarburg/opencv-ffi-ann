@@ -20,10 +20,11 @@ using namespace Rice;
 
 namespace CVRice {
 
-  CovarianceBruteForceMatcher::CovarianceBruteForceMatcher( const Matx33d &h, const Mat &hcov, double weight  )
-    : _h(h), _hcov(hcov), _weight( weight )
+  // TODO.  What if hcov isn't CV_64F?
+  CovarianceBruteForceMatcher::CovarianceBruteForceMatcher( const Matx33d h, const Mat hcov, double weight  )
+    : _h(h), _hcov(hcov.ptr<double>(0)), _weight( weight )
   {
-    ;
+    CV_Assert( hcov.type() == CV_64F );
   }
 
   Point2d CovarianceBruteForceMatcher::map_lr( const Point2d &pt )
@@ -36,7 +37,17 @@ namespace CVRice {
 
   Matx22d CovarianceBruteForceMatcher::point_covariance( const Point2d &pt )
   {
-    return Matx22d( 1, 0, 0, 1 );
+    double h1x = _h(0,0)*pt.x + _h(0,1)*pt.y + _h(0,2),
+           h2x = _h(1,0)*pt.x + _h(1,1)*pt.y + _h(1,2),
+           h3x = _h(2,0)*pt.x + _h(2,1)*pt.y + _h(2,2);
+    double h3x2 = h3x*h3x;
+
+    double jd[] = { pt.x/h3x, pt.y/h3x, 1.0/h3x, 0, 0, 0, -pt.x*h1x/h3x2, -pt.y*h1x/h3x2,
+                    0, 0, 0,   pt.x/h3x, pt.y/h3x, 1/h3x, -pt.x*h2x/h3x2, -pt.y*h2x/h3x2 };
+    Matx<double, 2, 8> j( jd );
+    Matx22d cov = j * _hcov * j.t();
+
+    return cov.inv();
   }
 
   double CovarianceBruteForceMatcher::reproj_distance( const Point2d &q, const Point2d &t )
