@@ -1,5 +1,6 @@
 ## C++-language testing
 
+require 'rake/clean'
 require_relative "directories"
 
 desc "Run the C/C++ language test suite."
@@ -60,3 +61,7 @@ end
 namespace :gdb do
   task :test_c => "test_c:gdb".to_sym
 end
+
+CLEAN.include 'test_c/*.o'
+CLEAN.include 'test_c/test_app'
+

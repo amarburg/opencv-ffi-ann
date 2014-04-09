@@ -7,9 +7,12 @@
 #define __CVRICE_MATCHERS_COV_BRUTE_FORCE_MATCHERS_H__
 
 namespace CVRice {
-  using cv::Point2d;
+  using cv::Point2f;
+  using cv::Mat;
+  using cv::Matx;
   using cv::Matx33d;
-  using cv::Matx22d;
+  using cv::Matx33f;
+  using cv::Matx22f;
   using cv::DMatch;
 
 
@@ -30,30 +33,33 @@ namespace CVRice {
   inline float get_geomdmatch_weight( const GeomDMatch dm ) { return dm.weight; };
 
 
-
   class CovarianceBFMatcher  {
     public:
-      CovarianceBFMatcher( const Matx33d h, const Mat hcov, float weight = 1.0 );
+      CovarianceBFMatcher( const Matx33f h, const Mat hcov, float weight = 1.0 );
       virtual ~CovarianceBFMatcher() {;}
 
       virtual std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
 
+      // TODO.  The right thing to do is make this friend to the test class
+      // The simple thing to do is make it public.
+      Matx22f point_covariance( const Point2f pt );
+
     protected:
-      Point2d map_lr( const Point2d &pt );
-      Matx22d point_covariance( const Point2d &pt );
-      double reproj_distance( const Point2d &q, const Point2d &t );
+      Point2f map_lr( const Point2f pt );
+      float reproj_distance( const Point2f &qmapped, const Matx22f &qcov, const Point2f &t );
 
       std::vector< std::vector<cv::DMatch> > do_match( const Mat &query, const Mat &train );
 
-      Matx33d _h;
-      Matx<double, 8, 8> _hcov;
-      double _weight;
+      Matx33f _h;
+      Matx<float, 8, 8> _hcov;
+
+      float _weight;
       int _knnDepth;
   };
 
   class CovarianceBFRatioMatcher : public CovarianceBFMatcher {
     public:
-      CovarianceBFRatioMatcher( const Matx33d h, const Mat hcov, float weight = 1.0, float ratio = 0.0 );
+      CovarianceBFRatioMatcher( const Matx33f h, const Mat hcov, float weight = 1.0, float ratio = 0.0 );
       virtual ~CovarianceBFRatioMatcher() {;}
 
       virtual std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );

@@ -51,10 +51,14 @@ class FeatureSet {
     FeatureSet( const KeyPointVector kps_, const cv::Mat desc_ )
       : kps( kps_ ), desc( desc_ ) {;}
 
+    int length( void ) const { return kps.size(); }
+
+    void apply_intrinsics( const cv::Matx33f &k );
+
     KeyPointVector kps;
     cv::Mat desc;
 };
 
-void init_matchers( Rice::Object &rb_module );
+void init_matchers( Rice::Module &rb_module );
 
 #endif

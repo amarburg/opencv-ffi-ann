@@ -21,9 +21,12 @@ using namespace Rice;
 #include "brute_force_matchers.h"
 #include "flann_matchers.h"
 #include "cov_brute_force_matchers.h"
+#include "only_geometry_matcher.h"
 using namespace CVRice;
 
 #include <iostream>
+
+#include <ruby.h>
 
 void Matcher::train( const Mat descriptors )
 {
@@ -88,6 +91,41 @@ vector<DMatch> Matcher::ratio_match( const Mat query, const Mat train, float rat
   return filter_ratio_matches( match_pairs, ratio );
 }
 
+
+KeyPointVector feature_set_kps( const FeatureSet &set ) { return set.kps; }
+cv::Mat feature_set_desc( const FeatureSet &set ) { return set.desc; }
+void FeatureSet::apply_intrinsics( const Matx33f &k )
+{
+  Matx33f kinv = k.inv();
+
+  for( KeyPointVector::iterator itr = kps.begin(); itr != kps.end(); ++itr ) {
+    Vec3f v( (*itr).pt.x, (*itr).pt.y, 1 );
+    Vec3f mapped = kinv * v;
+
+    (*itr).pt.x = mapped[0]/mapped[2];
+    (*itr).pt.y = mapped[1]/mapped[2];
+  }
+}
+
+
+Mat dmatches_to_mat( const vector<DMatch> dmatches, const KeyPointVector kps, int which )
+{
+  if( (which != 0) and (which != 1) )
+        rb_raise( rb_eArgError, "dmatches_to_mat takes 0 or 1" );
+
+  Mat out( dmatches.size(), 2, CV_64F );
+  double *dbl = out.ptr<double>(0);
+  int count = 0;
+  for( vector<DMatch>::const_iterator itr = dmatches.begin(); itr != dmatches.end(); ++itr, count+=2 ) {
+    int idx = (which==0 ? (*itr).queryIdx : (*itr).trainIdx );
+
+    dbl[count]   = kps[idx].pt.x;
+    dbl[count+1] = kps[idx].pt.y;
+  }
+  return out;
+}
+
+
 //==============
 //
 // From the Rice documentation
@@ -112,8 +150,10 @@ void define_train_matcher(Object &rb_module, const char *name )
     .define_method( "train_match", train_match(&Matcher::match) );
 }
 
-void init_matchers( Object &rb_module ) {
+void init_matchers( Module &rb_module ) {
   //  Data_Type <cv::Mat> rc_cMat     = define_class_under<cv::Mat>( rb_module, "Mat" );
+
+  rb_module.define_module_function( "dmatches_to_mat", &dmatches_to_mat );
 
   Data_Type <Matcher> rc_cMatcher = define_class_under<Matcher>( rb_module, "Matcher" )
     .define_method( "match", match_using_existing(&Matcher::match) )
@@ -147,15 +187,23 @@ void init_matchers( Object &rb_module ) {
 
 
   define_class_under<CovarianceBFMatcher>( rb_module, "CovarianceBFMatcher" )
-    .define_constructor( Constructor<CovarianceBFMatcher,Matx33d,Mat,float>())
+    .define_constructor( Constructor<CovarianceBFMatcher,Matx33f,Mat,float>())
     .define_method( "match", &CovarianceBFMatcher::match );
 
   define_class_under<CovarianceBFRatioMatcher,CovarianceBFMatcher>( rb_module, "CovarianceBFRatioMatcher" )
-    .define_constructor( Constructor<CovarianceBFRatioMatcher,Matx33d,Mat,float,float>())
+    .define_constructor( Constructor<CovarianceBFRatioMatcher,Matx33f,Mat,float,float>())
     .define_method( "match", &CovarianceBFRatioMatcher::match );
 
+  define_class_under<OnlyGeometryMatcher>( rb_module, "OnlyGeometryMatcher" )
+    .define_constructor( Constructor<OnlyGeometryMatcher,Matx33f,float>())
+    .define_method( "match", &OnlyGeometryMatcher::match );
+
+
   define_class_under<FeatureSet>( rb_module, "FeatureSet" )
-    .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() );
+    .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() )
+    .define_method("kps", &feature_set_kps )
+    .define_method("descriptors", &feature_set_desc )
+    .define_method("apply_intrinsics", &FeatureSet::apply_intrinsics );
 
   define_class_under<GeomDMatch, DMatch>( rb_module, "GeomDMatch" )
     .define_method( "geom_distance", &get_geomdmatch_geomdistance )

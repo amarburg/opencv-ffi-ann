@@ -35,7 +35,7 @@ TEST( ExtendedDescriptors, WarpDescriptors )
   ASSERT_EQ( desc_len, warped.descriptors().cols );
   for( int r = 0; r < num_desc; ++r ) {
     for( int c = 0; c < desc_len; ++c ) {
-      ASSERT_FLOAT_EQ( (0.5*(r+c)), warped.descriptors().at<float>(r,c) );
+      ASSERT_FLOAT_EQ( (0.1*(r+c)), warped.descriptors().at<float>(r,c) );
     }
   }
 }
