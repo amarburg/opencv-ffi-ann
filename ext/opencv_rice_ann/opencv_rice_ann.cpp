@@ -20,9 +20,9 @@ void Init_libopencv_rice_ann( void ) {
   init_extended_descriptors( rb_mANN );
   init_matchers( rb_mANN );
 
-  cv::Mat m;
-  Object o = to_ruby<cv::Mat>( m );
-  from_ruby<cv::Mat>( o );
+//  cv::Mat m;
+//  Object o = to_ruby<cv::Mat>( m );
+//  from_ruby<cv::Mat>( o );
 
   //Init_libopencv_rice();
 }

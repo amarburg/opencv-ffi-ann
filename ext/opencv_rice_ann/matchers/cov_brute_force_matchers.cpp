@@ -46,16 +46,14 @@ namespace CVRice {
   {
       float h1x = _h(0,0)*pt.x + _h(0,1)*pt.y + _h(0,2),
              h2x = _h(1,0)*pt.x + _h(1,1)*pt.y + _h(1,2),
-             h3x = _h(2,0)*pt.x + _h(2,1)*pt.y + _h(2,2);
+             h3x = 1.0/(_h(2,0)*pt.x + _h(2,1)*pt.y + _h(2,2));
       float h3x2 = h3x*h3x;
 
-      float jd[] = { pt.x/h3x, pt.y/h3x, 1.0f/h3x, 0, 0, 0, -pt.x*h1x/h3x2, -pt.y*h1x/h3x2,
-                     0, 0, 0,   pt.x/h3x, pt.y/h3x, 1.0f/h3x, -pt.x*h2x/h3x2, -pt.y*h2x/h3x2 };
+      float jd[] = { pt.x*h3x, pt.y*h3x, h3x, 0, 0, 0,   -pt.x*h1x*h3x2, -pt.y*h1x*h3x2,
+                     0, 0, 0,   pt.x*h3x, pt.y*h3x, h3x, -pt.x*h2x*h3x2, -pt.y*h2x*h3x2 };
       Matx<float, 2, 8> j( jd );
       Matx22f cov = j * _hcov * j.t();
-
-      Matx22f inv = cov.inv();
-      return inv;
+      return cov.inv();
   }
 
   float CovarianceBFMatcher::reproj_distance( const Point2f &qmapped, const Matx22f &qcov, const Point2f &t )
@@ -63,8 +61,13 @@ namespace CVRice {
     Vec2f err( qmapped.x - t.x, qmapped.y - t.y );
 
     Matx<float,1,1> cost = err.t() * qcov * err;
-
     return cost(0,0);
+
+    // Attempt at optimization
+    //float x = qmapped.x - t.x,
+    //      y = qmapped.y - t.y;
+
+    //return x*(x*qcov.val[0] + y*qcov.val[2]) + y*(x*qcov.val[1] + y*qcov.val[3]);
   }
 
   std::vector< std::vector<cv::DMatch> > CovarianceBFMatcher::do_match( const Mat &query, const Mat &train )
@@ -83,16 +86,14 @@ namespace CVRice {
       const FeatureSet &train )
   {
     vector< vector<DMatch> > dmatches = do_match( query.desc, train.desc );
-
     vector<GeomDMatch> out;
 
-    for( vector< vector<DMatch> >::iterator itr = dmatches.begin();
-        itr != dmatches.end(); ++itr ) {
+    for( vector< vector<DMatch> >::iterator itr = dmatches.begin(); itr != dmatches.end(); ++itr ) {
       vector<DMatch> &matches( *itr );
       DMatch &best( *matches.begin() );
 
       Point2f qmapped = map_lr( query.kps[ best.queryIdx ].pt );
-      Matx22d qcov = point_covariance( query.kps[ best.queryIdx ].pt );
+      Matx22f qcov = point_covariance( query.kps[ best.queryIdx ].pt );
 
       float best_geom_dist = reproj_distance( qmapped, qcov, train.kps[ best.trainIdx ].pt );
       float best_dist = best.distance + _weight * best_geom_dist;
@@ -102,8 +103,7 @@ namespace CVRice {
         continue;
       }
 
-      for( vector<DMatch>::iterator itr = matches.begin()++;
-          itr != matches.end(); ++itr ) {
+      for( vector<DMatch>::iterator itr = matches.begin()++; itr != matches.end(); ++itr ) {
         DMatch &dmatch( *itr );
 
         if( dmatch.distance > best_dist ) break;
