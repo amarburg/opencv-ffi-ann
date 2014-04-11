@@ -46,7 +46,8 @@ namespace CVRice {
 
     protected:
       Point2f map_lr( const Point2f pt );
-      float reproj_distance( const Point2f &qmapped, const Matx22f &qcov, const Point2f &t );
+      cv::Vec2f error( const Point2f &qmapped, const Point2f &t );
+      float reproj_distance( const cv::Vec2f &err, const Matx22f &qcov );
 
       std::vector< std::vector<cv::DMatch> > do_match( const Mat &query, const Mat &train );
 

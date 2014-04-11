@@ -56,9 +56,13 @@ namespace CVRice {
       return cov.inv();
   }
 
-  float CovarianceBFMatcher::reproj_distance( const Point2f &qmapped, const Matx22f &qcov, const Point2f &t )
+  Vec2f CovarianceBFMatcher::error( const Point2f &qmapped, const Point2f &t )
   {
-    Vec2f err( qmapped.x - t.x, qmapped.y - t.y );
+    return Vec2f( fabs(qmapped.x - t.x), fabs(qmapped.y - t.y) );
+  }
+
+  float CovarianceBFMatcher::reproj_distance( const Vec2f &err, const Matx22f &qcov )
+  {
 
     Matx<float,1,1> cost = err.t() * qcov * err;
     return cost(0,0);
@@ -95,7 +99,8 @@ namespace CVRice {
       Point2f qmapped = map_lr( query.kps[ best.queryIdx ].pt );
       Matx22f qcov = point_covariance( query.kps[ best.queryIdx ].pt );
 
-      float best_geom_dist = reproj_distance( qmapped, qcov, train.kps[ best.trainIdx ].pt );
+      Vec2f best_err = error( qmapped, train.kps[ best.trainIdx ].pt );
+      float best_geom_dist = reproj_distance( best_err, qcov );
       float best_dist = best.distance + _weight * best_geom_dist;
 
       if( matches.size() == 1 ) {
@@ -108,12 +113,17 @@ namespace CVRice {
 
         if( dmatch.distance > best_dist ) break;
 
-        float geom_dist = reproj_distance( qmapped, qcov, train.kps[ dmatch.trainIdx ].pt );
+        Vec2f err = error( qmapped, train.kps[ dmatch.trainIdx ].pt );
+        if( (err[0] > best_err[0]) && (err[1] > best_err[1]) ) break;
+
+
+        float geom_dist = reproj_distance( err, qcov );
         float dist = dmatch.distance + _weight * geom_dist;
 
         if( dist < best_dist ) {
           best = dmatch;
           best_dist = dist;
+          best_err = err;
           best_geom_dist = geom_dist;
         }
 
@@ -147,7 +157,8 @@ CovarianceBFRatioMatcher::CovarianceBFRatioMatcher( const Matx33f h, const Mat h
       Point2f qmapped = map_lr( query.kps[ best.queryIdx ].pt );
       Matx22d qcov = point_covariance( query.kps[ best.queryIdx ].pt );
 
-      float best_geom_dist = reproj_distance( qmapped, qcov, train.kps[ best.trainIdx ].pt );
+      Vec2f best_err = error( qmapped, train.kps[ best.trainIdx ].pt );
+      float best_geom_dist = reproj_distance( best_err, qcov );
       float best_dist = best.distance + _weight * best_geom_dist;
       double second_best = 0;
 
@@ -158,13 +169,15 @@ CovarianceBFRatioMatcher::CovarianceBFRatioMatcher( const Matx33f h, const Mat h
         // TODO.  Figure out this heuristic with ratio included..
         //if( dmatch.distance > best_dist ) break;
 
-        double geom_dist = reproj_distance( qmapped, qcov, train.kps[ dmatch.trainIdx ].pt );
+        Vec2f err = error( qmapped, train.kps[ dmatch.trainIdx ].pt );
+        double geom_dist = reproj_distance( err, qcov );
         double dist = dmatch.distance + _weight * geom_dist;
 
         if( dist < best_dist ) {
           best = dmatch;
           second_best = best_dist;
           best_dist = dist;
+          best_err = err;
           best_geom_dist = geom_dist;
         } else if ( (second_best == 0) || (dist < second_best) ) {
           second_best = dist;
