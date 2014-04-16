@@ -61,18 +61,19 @@ namespace CVRice {
     return Vec2f( fabs(qmapped.x - t.x), fabs(qmapped.y - t.y) );
   }
 
+
   float CovarianceBFMatcher::reproj_distance( const Vec2f &err, const Matx22f &qcov )
   {
 
     Matx<float,1,1> cost = err.t() * qcov * err;
     return cost(0,0);
-
-    // Attempt at optimization
-    //float x = qmapped.x - t.x,
-    //      y = qmapped.y - t.y;
-
-    //return x*(x*qcov.val[0] + y*qcov.val[2]) + y*(x*qcov.val[1] + y*qcov.val[3]);
   }
+
+float CovarianceBFMatcher::map_and_reproj_distance( const Point2f &q, const Point2f &t, const Matx22f &qcov )
+  {
+    return reproj_distance( error( map_lr( q ), t ), qcov );
+  }
+
 
   std::vector< std::vector<cv::DMatch> > CovarianceBFMatcher::do_match( const Mat &query, const Mat &train )
   {
@@ -92,44 +93,38 @@ namespace CVRice {
     vector< vector<DMatch> > dmatches = do_match( query.desc, train.desc );
     vector<GeomDMatch> out;
 
-    for( vector< vector<DMatch> >::iterator itr = dmatches.begin(); itr != dmatches.end(); ++itr ) {
-      vector<DMatch> &matches( *itr );
-      DMatch &best( *matches.begin() );
+    #pragma omp parallel for
+    for( unsigned int i = 0; i < dmatches.size(); i++ ) {
+      vector<DMatch> &matches( dmatches[i] );
+      DMatch &first( *matches.begin() );
 
-      Point2f qmapped = map_lr( query.kps[ best.queryIdx ].pt );
-      Matx22f qcov = point_covariance( query.kps[ best.queryIdx ].pt );
-
-      Vec2f best_err = error( qmapped, train.kps[ best.trainIdx ].pt );
-      float best_geom_dist = reproj_distance( best_err, qcov );
-      float best_dist = best.distance + _weight * best_geom_dist;
+      Matx22f qcov = point_covariance( query.kps[ first.queryIdx ].pt );
+      GeomDMatch best( first, 
+          map_and_reproj_distance( query.kps[ first.queryIdx ].pt,
+                                   train.kps[ first.trainIdx ].pt, qcov ), _weight );
 
       if( matches.size() == 1 ) {
-        out.push_back( GeomDMatch( best, best_dist, best_geom_dist, _weight ) );
+        out.push_back(  best );
         continue;
       }
 
-      for( vector<DMatch>::iterator itr = matches.begin()++; itr != matches.end(); ++itr ) {
-        DMatch &dmatch( *itr );
+      for( unsigned int j = 0; j != matches.size(); ++j ) {
+        DMatch &dmatch( matches[j] );
 
-        if( dmatch.distance > best_dist ) break;
+        if( dmatch.distance > best.descDistance ) break;
 
-        Vec2f err = error( qmapped, train.kps[ dmatch.trainIdx ].pt );
-        if( (err[0] > best_err[0]) && (err[1] > best_err[1]) ) break;
+        GeomDMatch current( dmatch, 
+            map_and_reproj_distance( query.kps[ dmatch.queryIdx ].pt,
+              train.kps[ dmatch.trainIdx ].pt, qcov ), _weight );
 
-
-        float geom_dist = reproj_distance( err, qcov );
-        float dist = dmatch.distance + _weight * geom_dist;
-
-        if( dist < best_dist ) {
-          best = dmatch;
-          best_dist = dist;
-          best_err = err;
-          best_geom_dist = geom_dist;
+        if( current.distance < best.distance ) {
+          best = current;
         }
 
       }
 
-      out.push_back( GeomDMatch( best, best_dist, best_geom_dist, _weight ) );
+# pragma omp critical
+      out.push_back( best );
 
     }
 
@@ -138,7 +133,7 @@ namespace CVRice {
 
 
   //== CovarianceBFRatioMatcher =================
-CovarianceBFRatioMatcher::CovarianceBFRatioMatcher( const Matx33f h, const Mat hcov, float weight, float ratio  )
+  CovarianceBFRatioMatcher::CovarianceBFRatioMatcher( const Matx33f h, const Mat hcov, float weight, float ratio  )
     : CovarianceBFMatcher( h, hcov, weight ), _ratio(ratio * ratio)
   {;}
 
@@ -149,49 +144,66 @@ CovarianceBFRatioMatcher::CovarianceBFRatioMatcher( const Matx33f h, const Mat h
 
     vector<GeomDMatch> out;
 
-    for( vector< vector<DMatch> >::iterator itr = dmatches.begin();
-        itr != dmatches.end(); ++itr ) {
-      vector<DMatch> &matches( *itr );
-      DMatch &best( *matches.begin() );
+#pragma omp parallel for 
+    for( unsigned int i = 0; i < dmatches.size(); i++ ) {
+      vector<DMatch> &matches( dmatches[i] );
+      DMatch &first( *matches.begin() );
 
-      Point2f qmapped = map_lr( query.kps[ best.queryIdx ].pt );
-      Matx22d qcov = point_covariance( query.kps[ best.queryIdx ].pt );
+      Matx22f qcov = point_covariance( query.kps[ first.queryIdx ].pt );
+      GeomDMatch best( first, 
+          map_and_reproj_distance( query.kps[ first.queryIdx ].pt,
+                                   train.kps[ first.trainIdx ].pt, qcov ), _weight ),
+                 second( best );
 
-      Vec2f best_err = error( qmapped, train.kps[ best.trainIdx ].pt );
-      float best_geom_dist = reproj_distance( best_err, qcov );
-      float best_dist = best.distance + _weight * best_geom_dist;
-      double second_best = 0;
-
-      for( vector<DMatch>::iterator itr = matches.begin()+1;
-          itr != matches.end(); ++itr ) {
-        DMatch &dmatch( *itr );
+      for( unsigned int j = 1; j < matches.size(); ++j )  {
+        DMatch &dmatch( matches[j] );
 
         // TODO.  Figure out this heuristic with ratio included..
         //if( dmatch.distance > best_dist ) break;
 
-        Vec2f err = error( qmapped, train.kps[ dmatch.trainIdx ].pt );
-        double geom_dist = reproj_distance( err, qcov );
-        double dist = dmatch.distance + _weight * geom_dist;
+        GeomDMatch current( dmatch, 
+            map_and_reproj_distance( query.kps[ dmatch.queryIdx ].pt,
+              train.kps[ dmatch.trainIdx ].pt, qcov ), _weight );
 
-        if( dist < best_dist ) {
-          best = dmatch;
-          second_best = best_dist;
-          best_dist = dist;
-          best_err = err;
-          best_geom_dist = geom_dist;
-        } else if ( (second_best == 0) || (dist < second_best) ) {
-          second_best = dist;
+        if( current.distance < best.distance ) {
+          second = best;
+          best = current;
+        } else if ( second == best ) {
+          second = current;
         }
 
       }
 
-      if( (second_best == 0) || ((best_dist * _ratio) < second_best) ) {
-        out.push_back( GeomDMatch( best, best_dist, best_geom_dist, _weight ) );
-      }
+#pragma omp critical
+      if( do_accept_dmatch( best, second ) ) out.push_back( best );
 
     }
 
     return out;
+  }
+
+
+  bool CovarianceBFRatioMatcher::do_accept_dmatch( const GeomDMatch &best, const GeomDMatch &second )
+  {
+    return  (second == best) ||
+      ((best.distance * _ratio) < second.distance);
+  }
+
+
+  //== CovarianceIndependentRatioMatcher =================
+  CovarianceIndependentRatioMatcher::CovarianceIndependentRatioMatcher( const Matx33f h, const Mat hcov, float weight, 
+      float desc_ratio, float geom_ratio)
+    : CovarianceBFRatioMatcher( h, hcov, weight, desc_ratio ), 
+    _descRatio( desc_ratio * desc_ratio ), 
+    _geomRatio( geom_ratio * geom_ratio )
+  {;}
+
+
+  bool CovarianceIndependentRatioMatcher::do_accept_dmatch( const GeomDMatch &best, const GeomDMatch &second )
+  {
+    return (second == best) || 
+      (((best.geomDistance * _geomRatio) < second.geomDistance) &&
+       ((best.descDistance * _descRatio) < second.descDistance));
   }
 
 

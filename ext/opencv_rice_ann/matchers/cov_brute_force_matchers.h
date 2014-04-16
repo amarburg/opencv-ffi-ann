@@ -19,13 +19,17 @@ namespace CVRice {
   class GeomDMatch : public cv::DMatch {
     public:
 
-      GeomDMatch( const DMatch &dm, float _totalDistance, float _geomDistance, float _weight )
+      GeomDMatch( const DMatch &dm, float _geomDistance, float _weight )
         : cv::DMatch( dm ), descDistance( dm.distance ), geomDistance( _geomDistance ), weight( _weight )
-      { distance = _totalDistance; }
+      { distance = descDistance + weight*geomDistance; }
 
       float descDistance;
       float geomDistance;
       float weight;
+
+      bool operator==( const GeomDMatch &other ) const
+      { return ( (trainIdx == other.trainIdx) &&
+                 (queryIdx == other.queryIdx) ); }
   };
 
   inline float get_geomdmatch_descdistance( const GeomDMatch dm ) { return dm.descDistance; };
@@ -48,6 +52,7 @@ namespace CVRice {
       Point2f map_lr( const Point2f pt );
       cv::Vec2f error( const Point2f &qmapped, const Point2f &t );
       float reproj_distance( const cv::Vec2f &err, const Matx22f &qcov );
+      float map_and_reproj_distance( const Point2f &q, const Point2f &t, const Matx22f &qcov );
 
       std::vector< std::vector<cv::DMatch> > do_match( const Mat &query, const Mat &train );
 
@@ -66,8 +71,23 @@ namespace CVRice {
       virtual std::vector<GeomDMatch> match( const FeatureSet &query, const FeatureSet &train );
 
     protected:
+
+      virtual bool do_accept_dmatch( const GeomDMatch &best, const GeomDMatch &second );
       float _ratio;
   };
+
+  class CovarianceIndependentRatioMatcher : public CovarianceBFRatioMatcher {
+    public:
+      CovarianceIndependentRatioMatcher( const Matx33f h, const Mat hcov, float weight = 1.0, 
+          float desc_ratio = 0.0, float geom_ratio = 0.0 );
+      virtual ~CovarianceIndependentRatioMatcher() {;}
+
+    protected:
+      virtual bool do_accept_dmatch( const GeomDMatch &best, const GeomDMatch &second );
+      float _descRatio;
+      float _geomRatio;
+  };
+
 
 };
 

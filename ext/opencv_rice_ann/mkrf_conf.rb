@@ -10,6 +10,9 @@ sources = %w( descriptors.cpp
               matchers/*.cpp
               opencv_rice_ann.cpp )
 
+
+              use_openmp = true
+
 Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|
   # TODO.  Shouldn't be fixed paths...
   #   (need to make "mkrf-rice" to correspond to "mkmf-rice"
@@ -23,9 +26,11 @@ Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|
   # The standard automatic library detection mechanism isn't well suited to
   # shared libraries of C++ code, so specify libraries manually for now
   #
-  gen.cflags = [ '-Wall', '-ggdb', '-O3', '-fPIC',
+  gen.cflags = [ '-Wall', '-ggdb', '-O3', '-fPIC', 
                   "-I" + dirs[:cvrice].join("ext").to_s,
                   "-I" + dirs[:rice].join("include").to_s ].join(' ')
+
+  gen.cflags += ' -fopenmp' if use_openmp
 
   # n.b.  Libraries should be specified after the object files.  This 'objects' syntax
   # causes mkrf to place this text after the list of objects on the linker command line
