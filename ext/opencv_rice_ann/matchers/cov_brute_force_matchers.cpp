@@ -108,18 +108,16 @@ float CovarianceBFMatcher::map_and_reproj_distance( const Point2f &q, const Poin
         continue;
       }
 
-      for( unsigned int j = 0; j != matches.size(); ++j ) {
+      for( unsigned int j = 0; j < matches.size(); ++j ) {
         DMatch &dmatch( matches[j] );
 
-        if( dmatch.distance > best.descDistance ) break;
+        //if( dmatch.distance > best.descDistance ) break;
 
         GeomDMatch current( dmatch, 
             map_and_reproj_distance( query.kps[ dmatch.queryIdx ].pt,
-              train.kps[ dmatch.trainIdx ].pt, qcov ), _weight );
+                                     train.kps[ dmatch.trainIdx ].pt, qcov ), _weight );
 
-        if( current.distance < best.distance ) {
-          best = current;
-        }
+        if( current.distance < best.distance ) best = current;
 
       }
 
