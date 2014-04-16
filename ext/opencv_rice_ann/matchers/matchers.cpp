@@ -191,8 +191,10 @@ void init_matchers( Module &rb_module ) {
     .define_method( "match", &CovarianceBFMatcher::match );
 
   define_class_under<CovarianceBFRatioMatcher,CovarianceBFMatcher>( rb_module, "CovarianceBFRatioMatcher" )
-    .define_constructor( Constructor<CovarianceBFRatioMatcher,Matx33f,Mat,float,float>())
-    .define_method( "match", &CovarianceBFRatioMatcher::match );
+    .define_constructor( Constructor<CovarianceBFRatioMatcher,Matx33f,Mat,float,float>());
+
+  define_class_under<CovarianceIndependentRatioMatcher,CovarianceBFRatioMatcher>( rb_module, "CovarianceIndependentRatioMatcher" )
+    .define_constructor( Constructor<CovarianceIndependentRatioMatcher,Matx33f,Mat,float,float,float>());
 
   define_class_under<OnlyGeometryMatcher>( rb_module, "OnlyGeometryMatcher" )
     .define_constructor( Constructor<OnlyGeometryMatcher,Matx33f,float>())
