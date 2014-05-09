@@ -204,6 +204,8 @@ void init_matchers( Module &rb_module ) {
   define_class_under<FeatureSet>( rb_module, "FeatureSet" )
     .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() )
     .define_method("kps", &feature_set_kps )
+    .define_method("keypoints", &feature_set_kps )
+    .define_method("descs", &feature_set_desc )
     .define_method("descriptors", &feature_set_desc )
     .define_method("apply_intrinsics", &FeatureSet::apply_intrinsics );
 
