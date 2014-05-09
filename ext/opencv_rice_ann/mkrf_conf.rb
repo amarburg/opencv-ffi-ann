@@ -4,12 +4,8 @@ require 'mkrf'
 require_relative Pathname.new(ENV['TOP_DIR']).join( "tasks", "directories" )
 dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 
-sources = %w( descriptors.cpp 
-              extended_descriptors.cpp
-              to_from_ruby.cpp
-              matchers/*.cpp
-              opencv_rice_ann.cpp )
-
+sources = %w( *.cpp
+              matchers/*.cpp )
 
               use_openmp = true
 
@@ -26,7 +22,7 @@ Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|
   # The standard automatic library detection mechanism isn't well suited to
   # shared libraries of C++ code, so specify libraries manually for now
   #
-  gen.cflags = [ '-Wall', '-ggdb', '-O3', '-fPIC', 
+  gen.cflags = [ '-Wall', '-ggdb', '-O0', '-fPIC', 
                   "-I" + dirs[:cvrice].join("ext").to_s,
                   "-I" + dirs[:rice].join("include").to_s ].join(' ')
 

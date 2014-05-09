@@ -7,10 +7,10 @@
 #define __CVRICE_MATCHERS_ONLY_GEOMETRY_MATCHER_H__
 
 namespace CVRice {
+
   using cv::Point2f;
   using cv::Matx33f;
   using cv::DMatch;
-
 
   class OnlyGeometryMatcher  {
     public:

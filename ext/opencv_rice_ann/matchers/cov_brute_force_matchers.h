@@ -2,6 +2,7 @@
 #include <opencv2/features2d.hpp>
 
 #include "matchers.h"
+#include "../feature_set.h"
 
 #ifndef __CVRICE_MATCHERS_COV_BRUTE_FORCE_MATCHERS_H__
 #define __CVRICE_MATCHERS_COV_BRUTE_FORCE_MATCHERS_H__
