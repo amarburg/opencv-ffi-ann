@@ -7,6 +7,7 @@
 
 using namespace cv;
 using namespace CVRice;
+using namespace CVRiceMatchers;
 
 
 TEST( CovarianceBFMatcher, point_covariance )

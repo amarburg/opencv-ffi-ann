@@ -15,7 +15,6 @@ using namespace cv;
 using namespace Rice;
 
 #include "descriptors.h"
-#include "to_from_ruby.h"
 
 #include <iostream>
 

@@ -14,7 +14,7 @@
 #ifndef __CVRICE_MATCHERS_MATCHER_H__
 #define __CVRICE_MATCHERS_MATCHER_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   // Written as a "simplified wrapper" around the OpenCV flann toolset
   // mostly because I don't know how (heavily templated) Rice will react 

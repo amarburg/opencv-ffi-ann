@@ -6,7 +6,7 @@
 #ifndef __CVRICE_MATCHERS_ONLY_GEOMETRY_MATCHER_H__
 #define __CVRICE_MATCHERS_ONLY_GEOMETRY_MATCHER_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   using cv::Point2f;
   using cv::Matx33f;

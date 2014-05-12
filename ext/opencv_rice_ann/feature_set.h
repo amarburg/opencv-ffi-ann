@@ -12,7 +12,7 @@
 #ifndef __CVRICE_MATCHERS_FEATURE_SET_H__
 #define __CVRICE_MATCHERS_FEATURE_SET_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   class FeatureSet {
     public:

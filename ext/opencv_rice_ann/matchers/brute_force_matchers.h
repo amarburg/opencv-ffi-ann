@@ -6,7 +6,7 @@
 #ifndef __CVRICE_MATCHERS_BRUTE_FORCE_MATCHERS_H__
 #define __CVRICE_MATCHERS_BRUTE_FORCE_MATCHERS_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   class L2BruteForceMatcher : public Matcher {
     public:

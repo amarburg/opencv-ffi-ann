@@ -15,7 +15,7 @@ using namespace cv;
 using namespace Rice;
 
 #include "descriptors.h"
-#include "to_from_ruby.h"
+#include "../dmatch.h"
 
 #include "matchers.h"
 #include "brute_force_matchers.h"
@@ -28,7 +28,7 @@ using namespace CVRice;
 
 #include <ruby.h>
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   void Matcher::train( const Mat descriptors )
   {
@@ -82,33 +82,8 @@ namespace CVRice {
   vector<DMatch> Matcher::ratio_match( const Mat query, const Mat train, float ratio )
   {
     vector<vector<DMatch> > match_pairs;
-
-    //  cout << "Ratio_match: " << endl;
-    //        for( unsigned int i = 0; i < query.cols; ++i ) {
-    //          cout << query.at<float>(0,i) << ' ';
-    //        }
-    //        cout << endl;
-
     _matcher->knnMatch( query, train, match_pairs, 2 );
     return filter_ratio_matches( match_pairs, ratio );
-  }
-
-
-  Mat dmatches_to_mat( const vector<DMatch> dmatches, const KeyPointVector kps, int which )
-  {
-    if( (which != 0) and (which != 1) )
-      rb_raise( rb_eArgError, "dmatches_to_mat takes 0 or 1" );
-
-    Mat out( dmatches.size(), 2, CV_64F );
-    double *dbl = out.ptr<double>(0);
-    int count = 0;
-    for( vector<DMatch>::const_iterator itr = dmatches.begin(); itr != dmatches.end(); ++itr, count+=2 ) {
-      int idx = (which==0 ? (*itr).queryIdx : (*itr).trainIdx );
-
-      dbl[count]   = kps[idx].pt.x;
-      dbl[count+1] = kps[idx].pt.y;
-    }
-    return out;
   }
 
 
@@ -139,8 +114,6 @@ namespace CVRice {
   void init_matchers( Module &rb_module ) {
     //  Data_Type <cv::Mat> rc_cMat     = define_class_under<cv::Mat>( rb_module, "Mat" );
 
-    rb_module.define_module_function( "dmatches_to_mat", &dmatches_to_mat );
-
     Data_Type <Matcher> rc_cMatcher = define_class_under<Matcher>( rb_module, "Matcher" )
       .define_method( "match", match_using_existing(&Matcher::match) )
       .define_method( "train_match", train_match(&Matcher::match) );
@@ -157,11 +130,12 @@ namespace CVRice {
       .define_method( "match", train_match(&Matcher::match) );
 
     define_train_matcher<KdTreeFlannMatcher>( rb_module, "KdTreeFlannMatcher" );
+
     define_class_under<KdTreeFlannRatioMatcher,KdTreeFlannMatcher>( rb_module, "KdTreeFlannRatioMatcher")
       .define_constructor( Constructor<KdTreeFlannRatioMatcher,float>() )
       .define_method( "train", &Matcher::train )
-      .define_method( "match", match_using_existing(&Matcher::match) )
-      .define_method( "train_match", train_match(&Matcher::match) );
+      .define_method( "match", match_using_existing(&KdTreeFlannRatioMatcher::match) )
+      .define_method( "train_match", train_match(&KdTreeFlannRatioMatcher::match) );
 
     define_train_matcher<KMeansFlannMatcher>( rb_module, "KMeansFlannMatcher" );
     define_class_under<KMeansFlannRatioMatcher,KMeansFlannMatcher>( rb_module, "KMeansFlannRatioMatcher")
@@ -169,8 +143,6 @@ namespace CVRice {
       .define_method( "train", &Matcher::train )
       .define_method( "match", match_using_existing(&Matcher::match) )
       .define_method( "train_match", train_match(&Matcher::match) );
-
-
 
     define_class_under<CovarianceBFMatcher>( rb_module, "CovarianceBFMatcher" )
       .define_constructor( Constructor<CovarianceBFMatcher,Matx33f,Mat,float>())

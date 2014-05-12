@@ -13,7 +13,7 @@ using namespace cv;
 
 #include <iostream>
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   // TODO.  What if hcov isn't CV_64F?
   OnlyGeometryMatcher::OnlyGeometryMatcher( const Matx33f h, const float threshold ) 

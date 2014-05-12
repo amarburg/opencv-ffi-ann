@@ -1,6 +1,5 @@
 
 #include <rice/Class.hpp>
-#include <rice/to_from_ruby_defn.hpp>
 using namespace Rice;
 
 #include <opencv_rice/opencv_rice.h>
@@ -8,11 +7,12 @@ using namespace Rice;
 #include "opencv_rice_ann.h"
 #include "matchers/matchers.h"
 #include "feature_set.h"
+#include "dmatch.h"
 
 void init_descriptors( Object & );
 void init_extended_descriptors( Object & );
 
-using namespace CVRice;
+using namespace CVRiceMatchers;
 
 extern "C"
 void Init_libopencv_rice_ann( void ) {
@@ -23,6 +23,8 @@ void Init_libopencv_rice_ann( void ) {
   init_feature_set( rb_mCVRice );
   init_extended_descriptors( rb_mANN );
   init_matchers( rb_mANN );
+
+  init_dmatch_functions( rb_mANN );
 
 //  cv::Mat m;
 //  Object o = to_ruby<cv::Mat>( m );

@@ -16,7 +16,7 @@ using namespace Rice;
 
 #include "feature_set.h"
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   KeyPointVector feature_set_kps( const FeatureSet &set ) { return set.kps; }
   cv::Mat feature_set_desc( const FeatureSet &set ) { return set.desc; }

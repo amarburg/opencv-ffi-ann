@@ -1,10 +1,12 @@
 
+#include <opencv_rice/core/dmatch.h>
+
 #include "matchers.h"
 
 #ifndef __CVRICE_MATCHERS_FLANN_MATCHERS_H__
 #define __CVRICE_MATCHERS_FLANN_MATCHERS_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   class KdTreeFlannMatcher : public Matcher {
     public:

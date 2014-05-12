@@ -7,7 +7,7 @@
 #ifndef __CVRICE_MATCHERS_COV_BRUTE_FORCE_MATCHERS_H__
 #define __CVRICE_MATCHERS_COV_BRUTE_FORCE_MATCHERS_H__
 
-namespace CVRice {
+namespace CVRiceMatchers {
   using cv::Point2f;
   using cv::Mat;
   using cv::Matx;
@@ -95,10 +95,10 @@ namespace CVRice {
 
 template<>
   inline
-Rice::Object to_ruby< std::vector<CVRice::GeomDMatch> >( std::vector<CVRice::GeomDMatch> const &matches )
+Rice::Object to_ruby< std::vector<CVRiceMatchers::GeomDMatch> >( std::vector<CVRiceMatchers::GeomDMatch> const &matches )
 {
   Rice::Array out;
-  for( std::vector<CVRice::GeomDMatch>::const_iterator itr = matches.begin(); itr != matches.end(); itr++ )
+  for( std::vector<CVRiceMatchers::GeomDMatch>::const_iterator itr = matches.begin(); itr != matches.end(); itr++ )
   {
     out.push( to_ruby( *itr ) );
   }

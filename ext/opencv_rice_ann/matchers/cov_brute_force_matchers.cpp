@@ -18,7 +18,7 @@ using namespace Rice;
 
 #include <iostream>
 
-namespace CVRice {
+namespace CVRiceMatchers {
 
   // TODO.  What if hcov isn't CV_64F?
   CovarianceBFMatcher::CovarianceBFMatcher( const Matx33f h, const Mat hcov, float weight  )
