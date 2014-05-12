@@ -28,8 +28,37 @@ namespace CVRiceMatchers {
       cv::Mat desc;
   };
 
+  class FeatureSetCovariance : public FeatureSet {
+    public:
+
+      FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const cv::Matx22f _cov = cv::Matx22f::eye() );
+
+      std::vector< cv::Matx22f > covs;
+  };
+                  
+
   void init_feature_set( Rice::Module &rb_module );
 
 };
+
+template <>
+inline
+std::vector< cv::Matx22f > from_ruby< std::vector< cv::Matx22f > >( Rice::Object o )
+{
+  Rice::Array arr(o);
+  std::vector< cv::Matx22f > vec;
+
+  for( Rice::Array::iterator itr = arr.begin(); itr != arr.end(); ++itr ) {
+    vec.push_back( from_ruby<cv::Matx22f>( *itr ) );
+  }
+  return vec;
+}
+
+template<>
+  inline
+Rice::Object to_ruby< std::vector<cv::Matx22f> >( std::vector<cv::Matx22f> const &vec )
+{
+  return Rice::Array(vec.begin(), vec.end());
+}
 
 #endif
