@@ -1,13 +1,12 @@
 
+require_relative '../../tasks/directories'
 require 'mkrf'
 
-require_relative Pathname.new(ENV['TOP_DIR']).join( "tasks", "directories" )
-dirs = DirectorySet.new Pathname.new(ENV['TOP_DIR']).join("Rakefile" )
 
 sources = %w( *.cpp
               matchers/*.cpp )
 
-              use_openmp = true
+use_openmp = true
 
 Mkrf::Generator.new( 'libopencv_rice_ann', sources, compiler: "g++" ) do |gen|
   # TODO.  Shouldn't be fixed paths...
