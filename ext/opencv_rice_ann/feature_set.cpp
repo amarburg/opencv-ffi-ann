@@ -34,8 +34,8 @@ namespace CVRiceMatchers {
   }
 
 
-  FeatureSetCovariance::FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const cv::Matx22f _cov )
-    : FeatureSet( _kps, _desc ), covs( _kps.size(), _cov )
+  FeatureSetCovariance::FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const vector< cv::Matx22f > _cov )
+    : FeatureSet( _kps, _desc ), covs( _cov )
   {;}
   vector< cv::Matx22f > feature_set_covariance( const FeatureSetCovariance &set ) { return set.covs; }
 
@@ -51,7 +51,7 @@ namespace CVRiceMatchers {
       .define_method("apply_intrinsics", &FeatureSet::apply_intrinsics );
 
     define_class_under<FeatureSetCovariance,FeatureSet>( rb_module, "FeatureSetCovariance" )
-      .define_constructor( Constructor<FeatureSetCovariance,KeyPointVector,Mat, cv::Matx22f >() )
+      .define_constructor( Constructor<FeatureSetCovariance,KeyPointVector, Mat,vector< cv::Matx22f > >() )
       .define_method("covs", &feature_set_covariance );
   }
 

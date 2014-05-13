@@ -31,7 +31,7 @@ namespace CVRiceMatchers {
   class FeatureSetCovariance : public FeatureSet {
     public:
 
-      FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const cv::Matx22f _cov = cv::Matx22f::eye() );
+      FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const std::vector< cv::Matx22f > _cov );
 
       std::vector< cv::Matx22f > covs;
   };
