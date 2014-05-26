@@ -21,7 +21,7 @@ using namespace Rice;
 #include "brute_force_matchers.h"
 #include "flann_matchers.h"
 #include "cov_brute_force_matchers.h"
-#include "only_geometry_matcher.h"
+#include "strictly_geometry_matcher.h"
 using namespace CVRice;
 
 #include <iostream>
@@ -154,9 +154,9 @@ namespace CVRiceMatchers {
     define_class_under<CovarianceIndependentRatioMatcher,CovarianceBFRatioMatcher>( rb_module, "CovarianceIndependentRatioMatcher" )
       .define_constructor( Constructor<CovarianceIndependentRatioMatcher,Matx33f,Mat,float,float,float>());
 
-    define_class_under<OnlyGeometryMatcher>( rb_module, "OnlyGeometryMatcher" )
-      .define_constructor( Constructor<OnlyGeometryMatcher,Matx33f,float>())
-      .define_method( "match", &OnlyGeometryMatcher::match );
+    define_class_under<StrictlyGeometryMatcher>( rb_module, "StrictlyGeometryMatcher" )
+      .define_constructor( Constructor<StrictlyGeometryMatcher,Matx33f,float>())
+      .define_method( "match", &StrictlyGeometryMatcher::match );
 
     define_class_under<GeomDMatch, DMatch>( rb_module, "GeomDMatch" )
       .define_method( "geom_distance", &get_geomdmatch_geomdistance )

@@ -9,19 +9,19 @@ using std::cout;
 #include <opencv2/features2d.hpp>
 using namespace cv;
 
-#include "only_geometry_matcher.h"
+#include "strictly_geometry_matcher.h"
 
 #include <iostream>
 
 namespace CVRiceMatchers {
 
   // TODO.  What if hcov isn't CV_64F?
-  OnlyGeometryMatcher::OnlyGeometryMatcher( const Matx33f h, const float threshold ) 
+  StrictlyGeometryMatcher::StrictlyGeometryMatcher( const Matx33f h, const float threshold ) 
     : _hinv(h.inv()), _threshold( threshold )
   {
   }
 
-  Point2f OnlyGeometryMatcher::map_rl( const Point2f &pt )
+  Point2f StrictlyGeometryMatcher::map_rl( const Point2f &pt )
   {
     Vec3f vec( pt.x, pt.y, 1 );
     Vec3f mapped = _hinv * vec;
@@ -29,12 +29,12 @@ namespace CVRiceMatchers {
     return Point2f( mapped[0]/mapped[2], mapped[1]/mapped[2] );
   }
 
-  float OnlyGeometryMatcher::residual_distance( const Point2f &q, const Point2f &t )
+  float StrictlyGeometryMatcher::residual_distance( const Point2f &q, const Point2f &t )
   {
     return ((q.x-t.x)*(q.x-t.x)) + ((q.y-t.y)*(q.y-t.y));
   }
 
-  vector<DMatch> OnlyGeometryMatcher::match( const FeatureSet &query, const FeatureSet &train )
+  vector<DMatch> StrictlyGeometryMatcher::match( const FeatureSet &query, const FeatureSet &train )
   {
     vector<DMatch> out;
 

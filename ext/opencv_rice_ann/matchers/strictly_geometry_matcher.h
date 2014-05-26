@@ -3,8 +3,8 @@
 
 #include "matchers.h"
 
-#ifndef __CVRICE_MATCHERS_ONLY_GEOMETRY_MATCHER_H__
-#define __CVRICE_MATCHERS_ONLY_GEOMETRY_MATCHER_H__
+#ifndef __CVRICE_MATCHERS_STRICTLY_GEOMETRY_MATCHER_H__
+#define __CVRICE_MATCHERS_STRICTLY_GEOMETRY_MATCHER_H__
 
 namespace CVRiceMatchers {
 
@@ -12,10 +12,10 @@ namespace CVRiceMatchers {
   using cv::Matx33f;
   using cv::DMatch;
 
-  class OnlyGeometryMatcher  {
+  class StrictlyGeometryMatcher  {
     public:
-      OnlyGeometryMatcher( const Matx33f h, const float threshold );
-      virtual ~OnlyGeometryMatcher() {;}
+      StrictlyGeometryMatcher( const Matx33f h, const float threshold );
+      virtual ~StrictlyGeometryMatcher() {;}
 
       virtual std::vector<DMatch> match( const FeatureSet &query, const FeatureSet &train );
 
