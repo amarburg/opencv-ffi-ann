@@ -40,7 +40,7 @@ namespace CVRiceMatchers {
     return out;
   }
 
-  DMatchVector dmatches_select_by_inliers( const DMatchVector dmatches, 
+  DMatchVector dmatches_select_inliers_by_h( const DMatchVector dmatches, 
       const KeyPointVector query, 
       const KeyPointVector train, 
       const Mat &h, const double threshold )
@@ -61,7 +61,7 @@ namespace CVRiceMatchers {
     return out;
   }
 
-  DMatchVector dmatches_select_by_mask( const DMatchVector dmatches, const Mat &mask )
+  DMatchVector dmatches_select_inliers_by_mask( const DMatchVector dmatches, const Mat &mask )
   {
     if( dmatches.size() == 0 ) return DMatchVector();
     if( dmatches.size() == 4 ) return dmatches;
@@ -84,8 +84,10 @@ namespace CVRiceMatchers {
 
   void init_dmatch_functions( Module &rb_module ) {
     rb_module.define_module_function( "dmatches_to_mat", &dmatches_to_mat )
-      .define_module_function( "dmatches_select_by_inliers", &dmatches_select_by_inliers )
-      .define_module_function( "dmatches_select_by_mask", &dmatches_select_by_mask );
+      .define_module_function( "dmatches_select_by_h", &dmatches_select_inliers_by_h )
+      .define_module_function( "dmatches_select_inliers_by_h", &dmatches_select_inliers_by_h )
+      .define_module_function( "dmatches_select_by_mask", &dmatches_select_inliers_by_mask )
+      .define_module_function( "dmatches_select_inliers_by_mask", &dmatches_select_inliers_by_mask );
  }
 
 };
