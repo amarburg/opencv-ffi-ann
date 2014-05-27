@@ -21,9 +21,9 @@ namespace CVRiceMatchers {
 
     protected:
       float residual_distance( const Point2f &q, const Point2f &t );
-      Point2f map_rl( const Point2f &pt );
+      Point2f map_lr( const Point2f &pt );
 
-      Matx33f _hinv;
+      Matx33f _h;
       float _threshold;
   };
 
