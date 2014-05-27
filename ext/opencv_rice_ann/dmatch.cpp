@@ -54,7 +54,7 @@ namespace CVRiceMatchers {
     Mat reproj_error = CVRice::cvHMaxReprojError( query_mat, train_mat, h );
 
     for( unsigned int i = 0; i < dmatches.size(); ++i ) {
-      if( reproj_error.at<double>(i,0) < threshold ) 
+      if( reproj_error.at<double>(i,0) < threshold*threshold ) 
         out.push_back( dmatches[i] );
     }
 
