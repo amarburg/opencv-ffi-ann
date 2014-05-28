@@ -57,9 +57,32 @@ namespace CVRiceMatchers {
       if( reproj_error.at<double>(i,0) < threshold*threshold ) 
         out.push_back( dmatches[i] );
     }
+l
+    return out;
+  }
+
+  // TODO.  Fix this DRY failure...
+  DMatchVector dmatches_reject_inliers_by_h( const DMatchVector dmatches, 
+      const KeyPointVector query, 
+      const KeyPointVector train, 
+      const Mat &h, const double threshold )
+  {
+    if( dmatches.size() == 0 ) return DMatchVector();
+
+    DMatchVector out;
+
+    Mat query_mat = dmatches_to_mat( dmatches, query, 0 ),
+        train_mat = dmatches_to_mat( dmatches, train, 1 );
+    Mat reproj_error = CVRice::cvHMaxReprojError( query_mat, train_mat, h );
+
+    for( unsigned int i = 0; i < dmatches.size(); ++i ) {
+      if( reproj_error.at<double>(i,0) >= threshold*threshold ) 
+        out.push_back( dmatches[i] );
+    }
 
     return out;
   }
+
 
   DMatchVector dmatches_select_inliers_by_mask( const DMatchVector dmatches, const Mat &mask )
   {
@@ -86,6 +109,7 @@ namespace CVRiceMatchers {
     rb_module.define_module_function( "dmatches_to_mat", &dmatches_to_mat )
       .define_module_function( "dmatches_select_by_h", &dmatches_select_inliers_by_h )
       .define_module_function( "dmatches_select_inliers_by_h", &dmatches_select_inliers_by_h )
+      .define_module_function( "dmatches_reject_inliers_by_h", &dmatches_reject_inliers_by_h )
       .define_module_function( "dmatches_select_by_mask", &dmatches_select_inliers_by_mask )
       .define_module_function( "dmatches_select_inliers_by_mask", &dmatches_select_inliers_by_mask );
  }
