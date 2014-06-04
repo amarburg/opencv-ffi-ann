@@ -57,7 +57,7 @@ namespace CVRiceMatchers {
       if( reproj_error.at<double>(i,0) < threshold*threshold ) 
         out.push_back( dmatches[i] );
     }
-l
+
     return out;
   }
 

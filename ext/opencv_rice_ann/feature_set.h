@@ -21,6 +21,7 @@ namespace CVRiceMatchers {
         : kps( kps_ ), desc( desc_ ) {;}
 
       int length( void ) const { return kps.size(); }
+      cv::KeyPoint kp_at( unsigned int idx );
 
       void apply_intrinsics( const cv::Matx33f &k );
 
