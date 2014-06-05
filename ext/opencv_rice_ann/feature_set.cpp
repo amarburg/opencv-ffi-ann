@@ -20,7 +20,6 @@ namespace CVRiceMatchers {
 
   KeyPointVector feature_set_kps( const FeatureSet &set ) { return set.kps; }
   cv::Mat feature_set_desc( const FeatureSet &set ) { return set.desc; }
-
   cv::KeyPoint FeatureSet::kp_at( unsigned int idx ) { return kps[idx]; }
 
   void FeatureSet::apply_intrinsics( const Matx33f &k )
@@ -40,7 +39,9 @@ namespace CVRiceMatchers {
   FeatureSetCovariance::FeatureSetCovariance( const KeyPointVector _kps, const cv::Mat _desc, const vector< cv::Matx22f > _cov )
     : FeatureSet( _kps, _desc ), covs( _cov )
   {;}
+
   vector< cv::Matx22f > feature_set_covariance( const FeatureSetCovariance &set ) { return set.covs; }
+
 
 
   void init_feature_set( Module &rb_module ) {
@@ -49,6 +50,7 @@ namespace CVRiceMatchers {
     define_class_under<FeatureSet>( rb_module, "FeatureSet" )
       .define_constructor( Constructor<FeatureSet,KeyPointVector,Mat>() )
       .define_method("kps", &feature_set_kps )   // n.b.  iterating over kps can be slow.  Lots of conversions to and from Array
+      .define_method("length", &FeatureSet::length )
       .define_method("[]", &FeatureSet::kp_at )
       .define_method("at", &FeatureSet::kp_at )
       .define_method("kp_at", &FeatureSet::kp_at )
